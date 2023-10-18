@@ -5,64 +5,13 @@ import NoResult from "@/components/shared/NoResult";
 import LocalSearch from "@/components/shared/search/LocalSearch";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filters";
+import { getQuestions } from "@/lib/actions/question.action";
 import Link from "next/link";
 import React from "react";
 
-const questions = [
-  {
-    _id: 1,
-    title: "How to Handle Your Program's Emotional Breakdowns",
-    tags: [
-      { _id: 101, name: "Programming" },
-      { _id: 102, name: "Emotions" },
-    ],
-    author: {
-      _id: 201,
-      name: "Dr. Codey Feelgood",
-      picture: "/assets/icons/avatar.svg",
-    },
-    upvotes: 42,
-    views: 987,
-    answers: [],
-    createdAt: new Date("2023-10-10T17:30:00"),
-  },
-  {
-    _id: 2,
-    title: "The Secret Life of Debugging Ducks",
-    tags: [
-      { _id: 103, name: "Debugging" },
-      { _id: 104, name: "Duckology" },
-    ],
-    author: {
-      _id: 202,
-      name: "Quacky Debugger",
-      picture: "/assets/icons/avatar.svg",
-    },
-    upvotes: 58,
-    views: 1234,
-    answers: [],
-    createdAt: new Date("2023-10-09T12:15:00"),
-  },
-  {
-    _id: 3,
-    title: "The Great API Bake-Off: Where Code Meets Cake",
-    tags: [
-      { _id: 105, name: "API" },
-      { _id: 106, name: "Baking" },
-    ],
-    author: {
-      _id: 203,
-      name: "Baker Dev",
-      picture: "/assets/icons/avatar.svg",
-    },
-    upvotes: 35,
-    views: 2023,
-    answers: [],
-    createdAt: new Date("2023-10-08T09:45:00"),
-  },
-];
+const Home = async () => {
+  const result = await getQuestions({});
 
-const Home = () => {
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
@@ -94,8 +43,8 @@ const Home = () => {
       </div>
 
       <div className="mt-10 flex w-full flex-col gap-6">
-        {questions.length > 0 ? (
-          questions.map((question) => (
+        {result.questions.length > 0 ? (
+          result.questions.map((question) => (
             <QuestionCard
               key={question._id}
               _id={question._id}

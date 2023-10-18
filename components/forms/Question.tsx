@@ -21,7 +21,7 @@ import { Editor } from "@tinymce/tinymce-react";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
 import { createQuestion } from "@/lib/actions/question.action";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const type: any = "create";
 
@@ -33,14 +33,14 @@ const Question = ({ mongoUserId }: Props) => {
   const editorRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const router = useRouter();
-  // const pathname = usePathname();
+  const pathname = usePathname();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof questionsSchema>>({
     resolver: zodResolver(questionsSchema),
     defaultValues: {
       title: "",
-      explanation: "",
+      content: "",
       tags: [],
     },
   });
@@ -50,15 +50,12 @@ const Question = ({ mongoUserId }: Props) => {
     setIsSubmitting(true);
 
     try {
-      // make async call to your API -> create a question
-      // contain all form data
-      // navigate to home page
-
       await createQuestion({
         title: values.title,
-        explanation: values.explanation,
+        content: values.content,
         tags: values.tags,
         author: JSON.parse(mongoUserId),
+        path: pathname,
       });
 
       router.push("/");
@@ -134,7 +131,7 @@ const Question = ({ mongoUserId }: Props) => {
 
         <FormField
           control={form.control}
-          name="explanation"
+          name="content"
           render={({ field }) => (
             <FormItem className="flex w-full flex-col gap-3">
               <FormLabel className="paragraph-semibold text-dark400_light800">

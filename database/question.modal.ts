@@ -2,7 +2,7 @@ import { Schema, models, model, Document } from "mongoose";
 
 export interface IQuestion extends Document {
   title: string;
-  explanation: string;
+  content: string;
   tags: Schema.Types.ObjectId[];
   views: number;
   upvotes: Schema.Types.ObjectId[];
@@ -14,7 +14,7 @@ export interface IQuestion extends Document {
 
 const questionSchema = new Schema({
   title: { type: String, required: true },
-  explanation: { type: String, required: true },
+  content: { type: String, required: true },
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
   views: { type: Number, default: 0 },
   upvotes: [{ type: Schema.Types.ObjectId, ref: "User" }],
