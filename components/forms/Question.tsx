@@ -20,12 +20,20 @@ import React, { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
+import { createQuestion } from "@/lib/actions/question.action";
+import { useRouter, usePathname } from "next/navigation";
 
 const type: any = "create";
 
-const Question = () => {
+interface Props {
+  mongoUserId: string;
+}
+
+const Question = ({ mongoUserId }: Props) => {
   const editorRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof questionsSchema>>({
@@ -38,19 +46,26 @@ const Question = () => {
   });
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof questionsSchema>) {
+  async function onSubmit(values: z.infer<typeof questionsSchema>) {
     setIsSubmitting(true);
 
     try {
       // make async call to your API -> create a question
       // contain all form data
       // navigate to home page
+
+      await createQuestion({
+        title: values.title,
+        explanation: values.explanation,
+        tags: values.tags,
+        author: JSON.parse(mongoUserId),
+      });
+
+      router.push("/");
     } catch (error) {
     } finally {
       setIsSubmitting(false);
     }
-
-    console.log(values);
   }
 
   const handleInputKeyDown = (
@@ -128,9 +143,13 @@ const Question = () => {
               </FormLabel>
               <FormControl className="mt-3.5">
                 <Editor
-                  apiKey={process.env.NEXT_PUBLIC_TINY_API_KEY}
+                  apiKey={process.env.NEXT_PUBLIC_TINY_EDITOR_API_KEY}
                   // @ts-ignore
                   onInit={(evt, editor) => (editorRef.current = editor)}
+                  onBlur={field.onBlur}
+                  onEditorChange={(content) => {
+                    field.onChange(content);
+                  }}
                   initialValue=""
                   init={{
                     height: 350,
