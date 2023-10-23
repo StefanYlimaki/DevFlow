@@ -65,6 +65,7 @@ export async function deleteUser(userData: DeleteUserParams) {
 
     connectToDatabase();
 
+    // eslint-disable-next-line no-unused-vars
     const userQuestionIds = await Question.find({ user: clerkId }).distinct(
       "_id"
     );
