@@ -12,6 +12,13 @@ const AskQuestion = async () => {
 
   const mongoUser = await getUserById({ userId });
 
+  if (!mongoUser)
+    return (
+      <div>
+        <h1 className="h1-bold text-dark100_light900">Loading...</h1>
+      </div>
+    );
+
   return (
     <div>
       <h1 className="h1-bold text-dark100_light900">Ask a question</h1>
