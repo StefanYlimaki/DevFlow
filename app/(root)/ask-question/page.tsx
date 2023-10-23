@@ -7,7 +7,7 @@ import React from "react";
 const AskQuestion = async () => {
   // const { userId } = auth();
 
-  const userId = "user_2XAAFpOO0Ax92dNPppmZelIgTt5";
+  const userId = "user_2XAL4syUauBBb2m3iT1V0WzntZ3";
 
   if (!userId) redirect("/sign-in");
 
