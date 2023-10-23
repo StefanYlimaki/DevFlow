@@ -83,7 +83,7 @@ export async function POST(req: Request) {
         email: email_addresses[0].email_address,
         picture: image_url,
       },
-      path: `/profile`,
+      path: `/profile/${id}`,
     });
 
     return NextResponse.json({ message: "OK", user: mongoUser });

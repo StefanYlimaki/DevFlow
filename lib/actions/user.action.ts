@@ -48,7 +48,7 @@ export async function updateUser(userData: UpdateUserParams) {
 
     await User.findByIdAndUpdate(user._id, updateData, { new: true });
 
-    revalidatePath(`${path}/${user._id}`);
+    revalidatePath(path);
   } catch (error) {
     console.log(error);
     throw error;
