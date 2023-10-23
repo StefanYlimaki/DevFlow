@@ -57,13 +57,13 @@ export async function deleteUser(userData: DeleteUserParams) {
   const { clerkId } = userData;
 
   try {
-    const user = await User.findByIdAndDelete({ clerkId });
+    connectToDatabase();
+
+    const user = await User.findOne({ clerkId });
 
     if (!user) {
       throw new Error("User not found");
     }
-
-    connectToDatabase();
 
     // eslint-disable-next-line no-unused-vars
     const userQuestionIds = await Question.find({ user: clerkId }).distinct(
