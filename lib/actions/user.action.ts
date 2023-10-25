@@ -5,11 +5,13 @@ import { connectToDatabase } from "./mongoose";
 import {
   CreateUserParams,
   DeleteUserParams,
+  GetAllUsersParams,
   UpdateUserParams,
 } from "./shared.types";
 import { revalidatePath } from "next/cache";
 import Question from "@/database/question.modal";
 
+/**  GET API CALLS  **/
 export async function getUserById(params: any) {
   try {
     connectToDatabase();
@@ -18,14 +20,27 @@ export async function getUserById(params: any) {
 
     const user = await User.findOne({ clerkId: userId });
 
-    console.log("user", user);
     return user;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 }
 
+export async function getAllUsers(params: GetAllUsersParams) {
+  try {
+    connectToDatabase();
+
+    const users = await User.find({}).sort({ createdAt: -1 });
+
+    return { users };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+/**  POST API CALLS  **/
 export async function createUser(userData: CreateUserParams) {
   try {
     connectToDatabase();
@@ -34,11 +49,12 @@ export async function createUser(userData: CreateUserParams) {
 
     return newUser;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 }
 
+/**  PUT API CALLS  **/
 export async function updateUser(userData: UpdateUserParams) {
   const { clerkId, updateData, path } = userData;
 
@@ -50,11 +66,12 @@ export async function updateUser(userData: UpdateUserParams) {
 
     revalidatePath(path);
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 }
 
+/**  DELETE API CALLS  **/
 export async function deleteUser(userData: DeleteUserParams) {
   const { clerkId } = userData;
 
@@ -81,7 +98,7 @@ export async function deleteUser(userData: DeleteUserParams) {
 
     return deletedUser;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     throw error;
   }
 }
