@@ -22,7 +22,7 @@ const UserCard = async ({ user }: Props) => {
   });
 
   return (
-    <div className="shadow-light100_darknone background-light900_dark200 light-border  rounded-2xl border p-8 max-xs:min-w-full xs:w-[260px]">
+    <div className="shadow-light100_darknone background-light900_dark200 light-border rounded-2xl border p-8 max-xs:min-w-full xs:w-[260px]">
       <Link
         href={`/profile/${user.clerkId}`}
         className="flex w-full flex-col items-center justify-center"

@@ -16,7 +16,7 @@ const Community = async () => {
 
       <div className="mt-11 flex w-full flex-col justify-between gap-5 sm:flex-row sm:items-center">
         <LocalSearch
-          route="/"
+          route="/community"
           iconPosition="left"
           imgSrc="/assets/icons/search.svg"
           placeholder="Search for users"
