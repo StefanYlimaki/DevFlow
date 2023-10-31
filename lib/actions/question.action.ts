@@ -7,6 +7,7 @@ import {
   CreateQuestionParams,
   GetQuestionByIdParams,
   GetQuestionsParams,
+  QuestionVoteParams,
 } from "./shared.types";
 import User from "@/database/user.modal";
 import { revalidatePath } from "next/cache";
@@ -84,6 +85,46 @@ export async function createQuestion(params: CreateQuestionParams) {
     // Create an interaction record for the user's ask_question action
 
     // Increment author's reputation by 5 for asking a question
+    revalidatePath(path);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function voteQuestion(params: QuestionVoteParams) {
+  try {
+    connectToDatabase();
+
+    const { questionId, userId, hasUpvoted, hasDownvoted, path, actionType } =
+      params;
+
+    switch (actionType) {
+      case "upvote":
+        if (hasUpvoted) {
+          await Question.findByIdAndUpdate(questionId, {
+            $pull: { upvotes: userId },
+          });
+        } else {
+          await Question.findByIdAndUpdate(questionId, {
+            $push: { upvotes: userId },
+          });
+        }
+        break;
+      case "downvote":
+        if (hasDownvoted) {
+          await Question.findByIdAndUpdate(questionId, {
+            $pull: { downvotes: userId },
+          });
+        } else {
+          await Question.findByIdAndUpdate(questionId, {
+            $push: { downvotes: userId },
+          });
+        }
+        break;
+      default:
+        throw new Error("Invalid action type");
+    }
+
     revalidatePath(path);
   } catch (error) {
     console.error(error);
