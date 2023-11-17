@@ -17,7 +17,6 @@ const Home = async () => {
   });
 
   if (!result) return null;
-  console.log(result);
 
   return (
     <>
@@ -25,7 +24,7 @@ const Home = async () => {
         <h1 className="h1-bold text-dark100_light900">Saved Questions</h1>
       </div>
 
-      <div className="mt-11 flex w-full justify-between gap-5 max-sm:flex-col sm:items-center md:flex-col">
+      <div className="mt-11 flex w-full justify-between gap-5 max-sm:flex-col sm:items-center ">
         <LocalSearch
           route="/"
           iconPosition="left"
@@ -37,13 +36,12 @@ const Home = async () => {
         <Filter
           filters={QuestionFilters}
           otherClasses="min-h-[56px] sm:min-w-[170px]"
-          containerClasses="hidden max-md:flex"
         />
       </div>
 
       <div className="mt-10 flex w-full flex-col gap-6">
         {result.questions.length > 0 ? (
-          result.questions.map((question) => (
+          result.questions.map((question: any) => (
             <QuestionCard
               key={question._id}
               _id={question._id}
