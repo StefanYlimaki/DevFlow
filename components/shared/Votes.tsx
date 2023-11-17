@@ -1,10 +1,14 @@
 "use client";
 
-import { voteQuestion } from "@/lib/actions/vote.action";
+import { downvoteAnswer, upvoteAnswer } from "@/lib/actions/answer.action";
+import {
+  upvoteQuestion,
+  downvoteQuestion,
+} from "@/lib/actions/question.action";
+import { toggleSaveQuestion } from "@/lib/actions/user.action";
 import { formatNumber } from "@/lib/utils";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 interface Props {
   type: string;
@@ -28,24 +32,80 @@ const Votes = ({
   hasSaved,
 }: Props) => {
   const pathname = usePathname();
-  const [isVoting, setIsVoting] = useState(false);
-  const handleSave = async () => {};
-  const handleVote = async (type: "upvote" | "downvote") => {
-    if (isVoting) return;
-    setIsVoting(true);
+
+  const handleVote = async (action: string) => {
+    // Handling all upvotes
+    if (action === "upvote") {
+      if (type === "question") {
+        try {
+          await upvoteQuestion({
+            questionId: itemId,
+            userId,
+            hasUpvoted,
+            hasDownvoted,
+            path: pathname,
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      if (type === "answer") {
+        try {
+          await upvoteAnswer({
+            answerId: itemId,
+            userId,
+            hasUpvoted,
+            hasDownvoted,
+            path: pathname,
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+
+    // Handling all downvotes
+    if (action === "downvote") {
+      if (type === "question") {
+        try {
+          await downvoteQuestion({
+            questionId: itemId,
+            userId,
+            hasUpvoted,
+            hasDownvoted,
+            path: pathname,
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      if (type === "answer") {
+        try {
+          await downvoteAnswer({
+            answerId: itemId,
+            userId,
+            hasUpvoted,
+            hasDownvoted,
+            path: pathname,
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
+  };
+
+  const handleSave = async () => {
     try {
-      await voteQuestion({
+      await toggleSaveQuestion({
         questionId: itemId,
         userId,
-        hasUpvoted,
-        hasDownvoted,
         path: pathname,
-        actionType: type,
       });
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsVoting(false);
     }
   };
 

@@ -91,39 +91,53 @@ export async function createQuestion(params: CreateQuestionParams) {
   }
 }
 
-export async function voteQuestion(params: QuestionVoteParams) {
+export async function downvoteQuestion(params: QuestionVoteParams) {
   try {
+    const { questionId, userId, hasUpvoted, hasDownvoted, path } = params;
+
     connectToDatabase();
 
-    const { questionId, userId, hasUpvoted, hasDownvoted, path, actionType } =
-      params;
+    const user = await User.findById(JSON.parse(userId));
 
-    switch (actionType) {
-      case "upvote":
-        if (hasUpvoted) {
-          await Question.findByIdAndUpdate(questionId, {
-            $pull: { upvotes: userId },
-          });
-        } else {
-          await Question.findByIdAndUpdate(questionId, {
-            $push: { upvotes: userId },
-          });
-        }
-        break;
-      case "downvote":
-        if (hasDownvoted) {
-          await Question.findByIdAndUpdate(questionId, {
-            $pull: { downvotes: userId },
-          });
-        } else {
-          await Question.findByIdAndUpdate(questionId, {
-            $push: { downvotes: userId },
-          });
-        }
-        break;
-      default:
-        throw new Error("Invalid action type");
+    const question = await Question.findById(JSON.parse(questionId));
+
+    if (hasDownvoted) {
+      question.downvotes.pull(user._id);
+    } else if (hasUpvoted) {
+      question.upvotes.pull(user._id);
+      question.downvotes.push(user._id);
+    } else {
+      question.downvotes.push(user._id);
     }
+
+    await question.save();
+
+    revalidatePath(path);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function upvoteQuestion(params: QuestionVoteParams) {
+  try {
+    const { questionId, userId, hasUpvoted, hasDownvoted, path } = params;
+
+    connectToDatabase();
+
+    const user = await User.findById(JSON.parse(userId));
+
+    const question = await Question.findById(JSON.parse(questionId));
+
+    if (hasUpvoted) {
+      question.upvotes.pull(user._id);
+    } else if (hasDownvoted) {
+      question.downvotes.pull(user._id);
+      question.upvotes.push(user._id);
+    } else {
+      question.upvotes.push(user._id);
+    }
+
+    await question.save();
 
     revalidatePath(path);
   } catch (error) {

@@ -23,7 +23,7 @@ const Question = async ({ params }: { params: { questionId: string } }) => {
     mongoUser = await getUserById({ userId: clerkId });
   }
 
-  const result = await getQuestionById({ questionId: params.questionId });
+  const result = await getQuestionById({ questionId });
 
   return (
     <>
@@ -48,7 +48,7 @@ const Question = async ({ params }: { params: { questionId: string } }) => {
           <div className="flex justify-end">
             <Votes
               type="question"
-              itemId={JSON.stringify(question._id)}
+              itemId={JSON.stringify(result._id)}
               userId={JSON.stringify(mongoUser._id)}
               upvotes={question.upvotes.length}
               downvotes={question.downvotes.length}

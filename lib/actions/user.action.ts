@@ -6,12 +6,14 @@ import {
   CreateUserParams,
   DeleteUserParams,
   GetAllUsersParams,
+  GetSavedQuestionsParams,
+  ToggleSaveQuestionParams,
   UpdateUserParams,
 } from "./shared.types";
 import { revalidatePath } from "next/cache";
 import Question from "@/database/question.modal";
+import Tag from "@/database/tag.modal";
 
-/**  GET API CALLS  **/
 export async function getUserById(params: any) {
   try {
     connectToDatabase();
@@ -40,7 +42,6 @@ export async function getAllUsers(params: GetAllUsersParams) {
   }
 }
 
-/**  POST API CALLS  **/
 export async function createUser(userData: CreateUserParams) {
   try {
     connectToDatabase();
@@ -54,7 +55,6 @@ export async function createUser(userData: CreateUserParams) {
   }
 }
 
-/**  PUT API CALLS  **/
 export async function updateUser(userData: UpdateUserParams) {
   const { clerkId, updateData, path } = userData;
 
@@ -71,7 +71,6 @@ export async function updateUser(userData: UpdateUserParams) {
   }
 }
 
-/**  DELETE API CALLS  **/
 export async function deleteUser(userData: DeleteUserParams) {
   const { clerkId } = userData;
 
@@ -102,3 +101,48 @@ export async function deleteUser(userData: DeleteUserParams) {
     throw error;
   }
 }
+
+export async function toggleSaveQuestion(params: ToggleSaveQuestionParams) {
+  const { questionId, userId, path } = params;
+
+  try {
+    connectToDatabase();
+
+    const user = await User.findById(JSON.parse(userId));
+    if (!user) throw new Error("User not found");
+
+    const question = await Question.findById(JSON.parse(questionId));
+
+    if (user.saved.includes(question._id)) {
+      user.saved.pull(question._id);
+    } else {
+      user.saved.push(question._id);
+    }
+
+    await user.save();
+
+    revalidatePath(path);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export const getSavedQuestions = async (params: GetSavedQuestionsParams) => {
+  const { clerkId } = params;
+
+  try {
+    const user = await getUserById({ userId: clerkId });
+    if (!user) throw new Error("User not found");
+
+    const questions = await Question.find({
+      _id: { $in: user.saved },
+    })
+      .populate({ path: "tags", model: Tag })
+      .populate({ path: "author", model: User })
+      .sort({ createdAt: -1 });
+
+    return { questions };
+  } catch (error) {
+    console.error(error);
+  }
+};

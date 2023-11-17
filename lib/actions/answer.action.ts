@@ -2,7 +2,11 @@
 
 import Answer from "@/database/answer.modal";
 import { connectToDatabase } from "./mongoose";
-import { CreateAnswerParams, GetAnswersParams } from "./shared.types";
+import {
+  AnswerVoteParams,
+  CreateAnswerParams,
+  GetAnswersParams,
+} from "./shared.types";
 import { revalidatePath } from "next/cache";
 import Question from "@/database/question.modal";
 import User from "@/database/user.modal";
@@ -47,6 +51,58 @@ export async function createAnswer(params: CreateAnswerParams) {
     });
 
     // TODO: Add interaction
+
+    revalidatePath(path);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function upvoteAnswer(params: AnswerVoteParams) {
+  const { answerId, userId, hasUpvoted, hasDownvoted, path } = params;
+
+  try {
+    connectToDatabase();
+
+    const user = await User.findById(JSON.parse(userId));
+    const answer = await Answer.findById(JSON.parse(answerId));
+
+    if (hasUpvoted) {
+      answer.upvotes.pull(user._id);
+    } else if (hasDownvoted) {
+      answer.downvotes.pull(user._id);
+      answer.upvotes.push(user._id);
+    } else {
+      answer.upvotes.push(user._id);
+    }
+
+    await answer.save();
+
+    revalidatePath(path);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function downvoteAnswer(params: AnswerVoteParams) {
+  const { answerId, userId, hasUpvoted, hasDownvoted, path } = params;
+
+  try {
+    connectToDatabase();
+
+    const user = await User.findById(JSON.parse(userId));
+    const answer = await Answer.findById(JSON.parse(answerId));
+
+    if (hasDownvoted) {
+      answer.downvotes.pull(user._id);
+    } else if (hasUpvoted) {
+      answer.upvotes.pull(user._id);
+      answer.downvotes.push(user._id);
+    } else {
+      answer.downvotes.push(user._id);
+    }
+
+    await answer.save();
 
     revalidatePath(path);
   } catch (error) {
