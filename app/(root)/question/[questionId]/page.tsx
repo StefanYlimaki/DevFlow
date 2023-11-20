@@ -8,7 +8,7 @@ import React from "react";
 import ParseHTML from "@/components/shared/ParseHTML";
 import Answer from "@/components/forms/Answer";
 import { auth } from "@clerk/nextjs";
-import { getUserById } from "@/lib/actions/user.action";
+import { getUserByClerkId } from "@/lib/actions/user.action";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Votes from "@/components/shared/Votes";
 
@@ -20,7 +20,7 @@ const Question = async ({ params }: { params: { questionId: string } }) => {
   let mongoUser;
 
   if (clerkId) {
-    mongoUser = await getUserById({ userId: clerkId });
+    mongoUser = await getUserByClerkId({ clerkId });
   }
 
   const result = await getQuestionById({ questionId });

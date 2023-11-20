@@ -14,18 +14,32 @@ import { revalidatePath } from "next/cache";
 import Question from "@/database/question.modal";
 import Tag from "@/database/tag.modal";
 
-export async function getUserById(params: any) {
+export async function getUserByClerkId(params: any) {
   try {
     connectToDatabase();
 
-    const { userId } = params;
+    const { clerkId } = params;
 
-    const user = await User.findOne({ clerkId: userId });
+    const user = await User.findOne({ clerkId });
 
     return user;
   } catch (error) {
     console.error(error);
     throw error;
+  }
+}
+
+export async function getUserByUserId(params: any) {
+  try {
+    connectToDatabase();
+
+    const { userId } = params;
+
+    const user = await User.findOne({ _id: userId });
+
+    return user;
+  } catch (error) {
+    console.error(error);
   }
 }
 
@@ -131,7 +145,9 @@ export const getSavedQuestions = async (params: GetSavedQuestionsParams) => {
   const { clerkId } = params;
 
   try {
-    const user = await getUserById({ userId: clerkId });
+    connectToDatabase();
+
+    const user = await getUserByClerkId({ clerkId });
     if (!user) throw new Error("User not found");
 
     const questions = await Question.find({
