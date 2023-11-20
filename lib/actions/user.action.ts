@@ -7,12 +7,14 @@ import {
   DeleteUserParams,
   GetAllUsersParams,
   GetSavedQuestionsParams,
+  GetUserByIdParams,
   ToggleSaveQuestionParams,
   UpdateUserParams,
 } from "./shared.types";
 import { revalidatePath } from "next/cache";
 import Question from "@/database/question.modal";
 import Tag from "@/database/tag.modal";
+import Answer from "@/database/answer.modal";
 
 export async function getUserByClerkId(params: any) {
   try {
@@ -26,20 +28,6 @@ export async function getUserByClerkId(params: any) {
   } catch (error) {
     console.error(error);
     throw error;
-  }
-}
-
-export async function getUserByUserId(params: any) {
-  try {
-    connectToDatabase();
-
-    const { userId } = params;
-
-    const user = await User.findOne({ _id: userId });
-
-    return user;
-  } catch (error) {
-    console.error(error);
   }
 }
 
@@ -158,6 +146,25 @@ export const getSavedQuestions = async (params: GetSavedQuestionsParams) => {
       .sort({ createdAt: -1 });
 
     return { questions };
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const getUserInfo = async (params: GetUserByIdParams) => {
+  try {
+    connectToDatabase();
+
+    const { clerkId } = params;
+
+    const user = await User.findOne({ clerkId });
+
+    if (!user) throw new Error("User not found");
+
+    const totalQuestions = await Question.countDocuments({ author: user._id });
+    const totalAnswers = await Answer.countDocuments({ author: user._id });
+
+    return { user, totalQuestions, totalAnswers };
   } catch (error) {
     console.error(error);
   }

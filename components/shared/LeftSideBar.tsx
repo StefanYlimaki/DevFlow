@@ -4,10 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 import React from "react";
 import { usePathname } from "next/navigation";
-import { SignedOut } from "@clerk/nextjs";
+import { SignedOut, useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 
 const LeftSideBar = () => {
+  const { userId } = useAuth(); // clerk id
   const pathname = usePathname();
 
   return (
@@ -17,6 +18,14 @@ const LeftSideBar = () => {
           const isActive =
             (pathname.includes(link.route) && link.route.length > 1) ||
             pathname === link.route;
+
+          if (link.route === "/profile") {
+            if (userId) {
+              link.route = `/profile/${userId}`;
+            } else {
+              return null;
+            }
+          }
 
           return (
             <Link

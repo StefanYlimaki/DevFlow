@@ -8,7 +8,7 @@ interface Props {
   _id: number;
   title: string;
   tags: { _id: number; name: string }[];
-  author: { _id: number; name: string; picture: string };
+  author: { _id: number; name: string; picture: string; clerkId: string };
   upvotes: string[];
   views: number;
   answers: Array<object>;
@@ -54,7 +54,7 @@ const QuestionCard = ({
           alt="user"
           value={author.name}
           title={` - asked ${getTimeStamp(createdAt)}`}
-          href={`/profile/${author._id}`}
+          href={`/profile/${author.clerkId}`}
           isAuthor
           textStyles="body-medium text-dark400_light700"
         />

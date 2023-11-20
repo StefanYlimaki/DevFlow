@@ -118,7 +118,7 @@ export interface CreateUserParams {
 }
 
 export interface GetUserByIdParams {
-  userId: string;
+  clerkId: string;
 }
 
 export interface GetAllUsersParams {
