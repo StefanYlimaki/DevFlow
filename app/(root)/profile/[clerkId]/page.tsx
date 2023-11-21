@@ -6,8 +6,18 @@ import { SignedIn, auth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/utils";
+import ProfileLink from "@/components/profile/ProfileLink";
+import ProfileStats from "@/components/profile/ProfileStats";
+import AnswersTab from "@/components/profile/AnswersTab";
+import QuestionsTab from "@/components/profile/QuestionsTab";
 
-const Profile = async ({ params }: { params: { clerkId: string } }) => {
+const Profile = async ({
+  params,
+  searchParams,
+}: {
+  params: { clerkId: string };
+  searchParams: any;
+}) => {
   const { userId: currentUserId } = auth();
 
   const { clerkId } = params;
@@ -37,19 +47,34 @@ const Profile = async ({ params }: { params: { clerkId: string } }) => {
             </p>
 
             <div className="mt-5 flex flex-wrap items-center justify-start gap-5">
-              {userInfo?.user.location && <>Location</>}
-              <div className="flex-center gap-1">
-                <Image
-                  src={"/assets/icons/calendar.svg"}
-                  width={20}
-                  height={20}
-                  alt="calendar-icon"
+              {userInfo?.user.portfolioWebsite && (
+                <ProfileLink
+                  imgUrl="/assets/icons/link.svg"
+                  imgAlt="link-icon"
+                  href={userInfo.user.portfolioWebsite}
+                  title="Portfolio"
                 />
-                <p className="paragraph-medium text-dark400_light700">
-                  {formatDate(userInfo?.user.joinedAt)}
+              )}
+
+              {userInfo?.user.location && (
+                <ProfileLink
+                  imgUrl="/assets/icons/location.svg"
+                  imgAlt="location-icon"
+                  title={userInfo.user.location}
+                />
+              )}
+
+              <ProfileLink
+                imgUrl="/assets/icons/calendar.svg"
+                imgAlt="calendar-icon"
+                title={`Joined ${formatDate(userInfo?.user.joinedAt)}`}
+              />
+
+              {userInfo?.user.bio && (
+                <p className="paragraph-regular text-dark400_light800 mt-8">
+                  {userInfo.user.bio}
                 </p>
-              </div>
-              {userInfo?.user.bio && <p>{userInfo.user.bio}</p>}
+              )}
             </div>
           </div>
         </div>
@@ -67,6 +92,11 @@ const Profile = async ({ params }: { params: { clerkId: string } }) => {
         </div>
       </div>
 
+      <ProfileStats
+        totalQuestions={userInfo.totalQuestions}
+        totalAnswers={userInfo.totalAnswers}
+      />
+
       <div className="mt-10 flex gap-10">
         <Tabs defaultValue="top-posts" className="flex-1">
           <TabsList className="background-light800_dark400 min-h-[42px] p-1">
@@ -77,72 +107,21 @@ const Profile = async ({ params }: { params: { clerkId: string } }) => {
               Answers
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="top-posts">POSTS</TabsContent>
-          <TabsContent value="answers">ANSWERS</TabsContent>
+          <TabsContent value="top-posts">
+            <QuestionsTab
+              searchParams={searchParams}
+              userId={JSON.stringify(userInfo.user._id)}
+              clerkId={clerkId}
+            />
+          </TabsContent>
+          <TabsContent value="answers">
+            <AnswersTab
+              searchParams={searchParams}
+              userId={JSON.stringify(userInfo.user._id)}
+              clerkId={clerkId}
+            />
+          </TabsContent>
         </Tabs>
-
-        {/* <h4 className="h3-semibold text-dark200_light900">Stats</h4>
-        <div className="mt-5 grid grid-cols-1 gap-5 xs:grid-cols-2 md:grid-cols-4">
-          <div className="light-border background-light900_dark300 flex flex-wrap items-center justify-evenly gap-4 rounded-md border p-6 shadow-light-300 dark:shadow-dark-200">
-            <div>
-              <p className="paragraph-semibold text-dark200_light900">0</p>
-              <p className="body-medium text-dark400_light700">Questions</p>
-            </div>
-            <div>
-              <p className="paragraph-semibold text-dark200_light900">3</p>
-
-              <p className="paragraph-medium text-dark400_light700">Answers</p>
-            </div>
-          </div>
-
-          <div className="light-border background-light900_dark300 flex flex-wrap items-center justify-evenly gap-4 rounded-md border p-6 shadow-light-300 dark:shadow-dark-200">
-            <Image
-              src={"/assets/icons/gold-medal.svg"}
-              width={40}
-              height={50}
-              alt="Gold Badge"
-            />
-            <div>
-              <p className="paragraph-semibold text-dark200_light900">0</p>
-
-              <p className="paragraph-medium text-dark400_light700">
-                Gold Badges
-              </p>
-            </div>
-          </div>
-
-          <div className="light-border background-light900_dark300 flex flex-wrap items-center justify-evenly gap-4 rounded-md border p-6 shadow-light-300 dark:shadow-dark-200">
-            <Image
-              src={"/assets/icons/silver-medal.svg"}
-              width={40}
-              height={50}
-              alt="Gold Badge"
-            />
-            <div>
-              <p className="paragraph-semibold text-dark200_light900">0</p>
-
-              <p className="paragraph-medium text-dark400_light700">
-                Silver Badges
-              </p>
-            </div>
-          </div>
-
-          <div className="light-border background-light900_dark300 flex flex-wrap items-center justify-evenly gap-4 rounded-md border p-6 shadow-light-300 dark:shadow-dark-200">
-            <Image
-              src={"/assets/icons/bronze-medal.svg"}
-              width={40}
-              height={50}
-              alt="Gold Badge"
-            />
-            <div>
-              <p className="paragraph-semibold text-dark200_light900">0</p>
-
-              <p className="paragraph-medium text-dark400_light700">
-                Bronze Badges
-              </p>
-            </div>
-          </div>
-        </div> */}
       </div>
       <div className="mt-10 flex gap-10"></div>
     </div>

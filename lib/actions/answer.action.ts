@@ -24,6 +24,7 @@ export async function getAnswersByQuestionId(params: GetAnswersParams) {
         model: User,
       })
       .sort({
+        upvotes: -1,
         createdAt: -1,
       });
 
