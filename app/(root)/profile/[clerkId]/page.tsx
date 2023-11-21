@@ -114,7 +114,7 @@ const Profile = async ({
               clerkId={clerkId}
             />
           </TabsContent>
-          <TabsContent value="answers">
+          <TabsContent value="answers" className="flex w-full flex-col gap-6">
             <AnswersTab
               searchParams={searchParams}
               userId={JSON.stringify(userInfo.user._id)}

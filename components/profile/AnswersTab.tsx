@@ -1,6 +1,6 @@
 import { getAnswersByUser } from "@/lib/actions/user.action";
 import React from "react";
-import QuestionCard from "../cards/QuestionCard";
+import AnswerCard from "../cards/AnswerCard";
 
 interface QuestionsTabProps {
   searchParams: any;
@@ -18,24 +18,19 @@ const AnswersTab = async ({
     page: searchParams.p,
   });
 
-  console.log(result);
-
   if (!result) return null;
 
   return (
     <div>
       {result.userAnswers.map((answer) => (
-        <QuestionCard
-          key={answer.question._id}
-          _id={answer.question._id}
+        <AnswerCard
+          key={answer._id}
+          _id={answer._id}
           clerkId={clerkId}
-          title={answer.question.title}
-          tags={answer.question.tags}
-          author={answer.question.author}
-          upvotes={answer.question.upvotes}
-          views={answer.question.views}
-          answers={answer.question.answers}
-          createdAt={answer.question.createdAt}
+          question={answer.question}
+          author={answer.author}
+          upvotes={answer.upvotes.length}
+          createdAt={answer.createdAt}
         />
       ))}
     </div>

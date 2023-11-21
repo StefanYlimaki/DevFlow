@@ -20,7 +20,7 @@ const Question = async ({ params }: { params: { questionId: string } }) => {
   let mongoUser;
 
   if (clerkId) {
-    mongoUser = await getUserByClerkId({ clerkId });
+    mongoUser = await getUserByClerkId({ userId: clerkId });
   }
 
   const result = await getQuestionById({ questionId });
