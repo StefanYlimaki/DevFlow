@@ -4,6 +4,8 @@ import User from "@/database/user.modal";
 import { connectToDatabase } from "./mongoose";
 import {
   CreateUserParams,
+  DeleteAnswerParams,
+  DeleteQuestionParams,
   DeleteUserParams,
   GetAllUsersParams,
   GetSavedQuestionsParams,
@@ -215,6 +217,42 @@ export const getAnswersByUser = async (params: GetUserStatsParams) => {
       .populate("author", "_id clerkId name picture");
 
     return { totalAnswers, userAnswers };
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const deleteAnswer = async (params: DeleteAnswerParams) => {
+  try {
+    connectToDatabase();
+
+    const { id, path } = params;
+
+    const answer = Answer.findByIdAndDelete(id);
+
+    if (!answer) return { status: "failed", message: "Answer not found" };
+
+    revalidatePath(path);
+
+    return { status: "success", message: "Answer deleted successfully" };
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const deleteQuestion = async (params: DeleteQuestionParams) => {
+  try {
+    connectToDatabase();
+
+    const { id, path } = params;
+
+    const question = await Question.findByIdAndDelete(id);
+
+    if (!question) return { status: "failed", message: "Question not found" };
+
+    revalidatePath(path);
+
+    return { status: "success", message: "Question deleted successfully" };
   } catch (error) {
     console.error(error);
   }

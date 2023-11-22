@@ -3,9 +3,10 @@ import React from "react";
 import RenderTag from "../shared/RenderTag";
 import Metric from "../shared/Metric";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
+import EditRemoveButtons from "../shared/EditRemoveButtons";
 
 interface Props {
-  _id: number;
+  _id: string;
   title: string;
   tags: { _id: number; name: string }[];
   author: { _id: number; name: string; picture: string; clerkId: string };
@@ -40,7 +41,11 @@ const QuestionCard = ({
           </Link>
         </div>
 
-        {/* If signed in add edit delete actions */}
+        <EditRemoveButtons
+          contentType="question"
+          contentId={JSON.stringify(_id)}
+          contentOwnerClerkId={author.clerkId}
+        />
       </div>
 
       <div className="mt-3.5 flex flex-wrap gap-2">

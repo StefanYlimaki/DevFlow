@@ -25,7 +25,7 @@ export interface AnswerVoteParams {
 }
 
 export interface DeleteAnswerParams {
-  answerId: string;
+  id: string;
   path: string;
 }
 
@@ -79,7 +79,7 @@ export interface QuestionVoteParams {
 }
 
 export interface DeleteQuestionParams {
-  questionId: string;
+  id: string;
   path: string;
 }
 

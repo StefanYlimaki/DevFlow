@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Metric from "../shared/Metric";
 import { formatNumber, getTimeStamp } from "@/lib/utils";
+import EditRemoveButtons from "../shared/EditRemoveButtons";
 
 interface AnswerCardProps {
-  _id: number;
+  _id: string;
   author: { _id: number; name: string; picture: string; clerkId: string };
   upvotes: number;
   createdAt: Date;
@@ -30,6 +31,12 @@ const AnswerCard = ({
             {question.title}
           </h3>
         </Link>
+
+        <EditRemoveButtons
+          contentType="Answer"
+          contentId={JSON.stringify(_id)}
+          contentOwnerClerkId={author.clerkId}
+        />
       </div>
 
       <div className="flex-between mt-6 w-full flex-wrap gap-3">
