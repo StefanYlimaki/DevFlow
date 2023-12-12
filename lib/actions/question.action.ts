@@ -47,7 +47,6 @@ export async function getQuestionById(params: GetQuestionByIdParams) {
 }
 
 export async function createQuestion(params: CreateQuestionParams) {
-  // eslint-disable-next-line no-empty
   try {
     connectToDatabase();
 
@@ -85,6 +84,49 @@ export async function createQuestion(params: CreateQuestionParams) {
     // Create an interaction record for the user's ask_question action
 
     // Increment author's reputation by 5 for asking a question
+    revalidatePath(path);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function updateQuestion(params: any) {
+  try {
+    connectToDatabase();
+
+    const { title, content, tags, questionId, path } = params;
+
+    const questionToEdit = await getQuestionById({ questionId });
+
+    questionToEdit.title = title;
+    questionToEdit.content = content;
+    questionToEdit.tags = [];
+
+    await questionToEdit.save();
+
+    const tagDocuments = [];
+
+    for (const tag of tags) {
+      const existingTag = await Tag.findOneAndUpdate(
+        {
+          name: { $regex: new RegExp(`^${tag}$`, "i") },
+        },
+        {
+          $setOnInsert: {
+            name: tag,
+          },
+          $push: { questions: questionId },
+        },
+        { upsert: true, new: true }
+      );
+
+      tagDocuments.push(existingTag._id);
+    }
+
+    await Question.findByIdAndUpdate(questionId, {
+      $push: { tags: { $each: tagDocuments } },
+    });
+
     revalidatePath(path);
   } catch (error) {
     console.error(error);

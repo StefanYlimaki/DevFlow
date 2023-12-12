@@ -20,7 +20,7 @@ import React, { useRef } from "react";
 import { Editor } from "@tinymce/tinymce-react";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
-import { createQuestion } from "@/lib/actions/question.action";
+import { createQuestion, updateQuestion } from "@/lib/actions/question.action";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeProvider";
 
@@ -28,9 +28,10 @@ const type: any = "create";
 
 interface Props {
   mongoUserId: string;
+  questionData?: any;
 }
 
-const Question = ({ mongoUserId }: Props) => {
+const Question = ({ mongoUserId, questionData }: Props) => {
   const { mode } = useTheme();
   const editorRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -41,9 +42,9 @@ const Question = ({ mongoUserId }: Props) => {
   const form = useForm<z.infer<typeof QuestionsSchema>>({
     resolver: zodResolver(QuestionsSchema),
     defaultValues: {
-      title: "",
-      content: "",
-      tags: [],
+      title: questionData?.title || "",
+      content: questionData?.content || "",
+      tags: JSON.parse(questionData?.tags) || [],
     },
   });
 
@@ -52,13 +53,23 @@ const Question = ({ mongoUserId }: Props) => {
     setIsSubmitting(true);
 
     try {
-      await createQuestion({
-        title: values.title,
-        content: values.content,
-        tags: values.tags,
-        author: JSON.parse(mongoUserId),
-        path: pathname,
-      });
+      if (questionData)
+        await updateQuestion({
+          title: values.title,
+          content: values.content,
+          tags: values.tags,
+          author: JSON.parse(mongoUserId),
+          path: pathname,
+          questionId: questionData.questionId,
+        });
+      else
+        await createQuestion({
+          title: values.title,
+          content: values.content,
+          tags: values.tags,
+          author: JSON.parse(mongoUserId),
+          path: pathname,
+        });
 
       router.push("/");
     } catch (error) {
@@ -149,7 +160,7 @@ const Question = ({ mongoUserId }: Props) => {
                   onEditorChange={(content) => {
                     field.onChange(content);
                   }}
-                  initialValue=""
+                  initialValue={questionData?.content || ""}
                   init={{
                     height: 350,
                     menubar: false,

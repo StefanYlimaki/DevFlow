@@ -2,7 +2,7 @@
 
 import { deleteAnswer, deleteQuestion } from "@/lib/actions/user.action";
 import { SignedIn, useAuth } from "@clerk/nextjs";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 import Image from "next/image";
 import { Toaster } from "@/components/ui/toaster";
@@ -22,9 +22,12 @@ const EditRemoveButtons = ({
   const { userId } = useAuth();
   const pathname = usePathname();
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleEdit = () => {
-    console.log("edit");
+    if (contentType === "question") {
+      router.push(`/question/edit/${JSON.parse(contentId)}`);
+    }
   };
 
   const handleDelete = async () => {
@@ -56,6 +59,7 @@ const EditRemoveButtons = ({
               width={14}
               height={14}
               onClick={handleEdit}
+              className="cursor-pointer"
             />
           )}
           <Image
