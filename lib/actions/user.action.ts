@@ -232,6 +232,8 @@ export const deleteAnswer = async (params: DeleteAnswerParams) => {
 
     if (!answer) return { status: "failed", message: "Answer not found" };
 
+    console.log("done");
+
     revalidatePath(path);
 
     return { status: "success", message: "Answer deleted successfully" };

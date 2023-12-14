@@ -5,6 +5,7 @@ import Tag from "@/database/tag.modal";
 import { connectToDatabase } from "./mongoose";
 import {
   CreateQuestionParams,
+  EditQuestionParams,
   GetQuestionByIdParams,
   GetQuestionsParams,
   QuestionVoteParams,
@@ -90,42 +91,20 @@ export async function createQuestion(params: CreateQuestionParams) {
   }
 }
 
-export async function updateQuestion(params: any) {
+export async function updateQuestion(params: EditQuestionParams) {
   try {
     connectToDatabase();
 
-    const { title, content, tags, questionId, path } = params;
+    const { title, content, questionId, path } = params;
 
     const questionToEdit = await getQuestionById({ questionId });
 
+    if (!questionToEdit) throw new Error("Question not found");
+
     questionToEdit.title = title;
     questionToEdit.content = content;
-    questionToEdit.tags = [];
 
     await questionToEdit.save();
-
-    const tagDocuments = [];
-
-    for (const tag of tags) {
-      const existingTag = await Tag.findOneAndUpdate(
-        {
-          name: { $regex: new RegExp(`^${tag}$`, "i") },
-        },
-        {
-          $setOnInsert: {
-            name: tag,
-          },
-          $push: { questions: questionId },
-        },
-        { upsert: true, new: true }
-      );
-
-      tagDocuments.push(existingTag._id);
-    }
-
-    await Question.findByIdAndUpdate(questionId, {
-      $push: { tags: { $each: tagDocuments } },
-    });
 
     revalidatePath(path);
   } catch (error) {

@@ -24,14 +24,13 @@ import { createQuestion, updateQuestion } from "@/lib/actions/question.action";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeProvider";
 
-const type: any = "create";
-
 interface Props {
   mongoUserId: string;
   questionData?: any;
+  type: string;
 }
 
-const Question = ({ mongoUserId, questionData }: Props) => {
+const Question = ({ mongoUserId, questionData, type }: Props) => {
   const { mode } = useTheme();
   const editorRef = useRef(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -53,12 +52,10 @@ const Question = ({ mongoUserId, questionData }: Props) => {
     setIsSubmitting(true);
 
     try {
-      if (questionData)
+      if (type === "edit")
         await updateQuestion({
           title: values.title,
           content: values.content,
-          tags: values.tags,
-          author: JSON.parse(mongoUserId),
           path: pathname,
           questionId: questionData.questionId,
         });
@@ -216,6 +213,7 @@ const Question = ({ mongoUserId, questionData }: Props) => {
                     onKeyDown={(e) => {
                       handleInputKeyDown(e, field);
                     }}
+                    disabled={type === "edit"}
                   />
 
                   {field.value.length > 0 && (
@@ -224,16 +222,20 @@ const Question = ({ mongoUserId, questionData }: Props) => {
                         <Badge
                           key={tag}
                           className="subtle-medium background-light800_dark300 text-light400_light500 flex items-center justify-center gap-2 rounded-md border-none px-4 py-2 capitalize"
-                          onClick={() => handleTagRemove(tag, field)}
+                          onClick={() => {
+                            if (type === "create") handleTagRemove(tag, field);
+                          }}
                         >
                           {tag}
-                          <Image
-                            src="/assets/icons/close.svg"
-                            alt="Close icon"
-                            width={12}
-                            height={12}
-                            className="cursor-pointer object-contain invert-0 dark:invert"
-                          />
+                          {type === "create" && (
+                            <Image
+                              src="/assets/icons/close.svg"
+                              alt="Close icon"
+                              width={12}
+                              height={12}
+                              className="cursor-pointer object-contain invert-0 dark:invert"
+                            />
+                          )}
                         </Badge>
                       ))}
                     </div>

@@ -31,6 +31,17 @@ const EditRemoveButtons = ({
   };
 
   const handleDelete = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete this ${
+          contentType === "question" ? "question" : "answer"
+        }?`
+      )
+    )
+      return;
+
+    console.log("delete", contentId, pathname);
+
     const payload = {
       id: JSON.parse(contentId),
       path: pathname,

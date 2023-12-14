@@ -17,10 +17,6 @@ const EditQuestion = async ({ params }: { params: { questionId: string } }) => {
 
   const { title, content, tags } = questionToEdit;
 
-  console.log(title);
-  console.log(content);
-  console.log(tags);
-
   const tagNames = tags.map((tag: any) => {
     return tag.name;
   });
@@ -33,15 +29,16 @@ const EditQuestion = async ({ params }: { params: { questionId: string } }) => {
   };
 
   return (
-    <div>
-      <h1 className="h1-bold text-dark100_light900">Ask a question</h1>
+    <>
+      <h1 className="h1-bold text-dark100_light900">Edit Question</h1>
       <div className="mt-9">
         <Question
           mongoUserId={JSON.stringify(mongoUser._id)}
           questionData={questionData}
+          type="edit"
         />
       </div>
-    </div>
+    </>
   );
 };
 
