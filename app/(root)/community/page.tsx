@@ -10,9 +10,7 @@ const Community = async () => {
 
   return (
     <>
-      <div>
-        <h1 className="h1-bold text-dark100_light900">All Users</h1>
-      </div>
+      <h1 className="h1-bold text-dark100_light900">All Users</h1>
 
       <div className="mt-11 flex w-full flex-col justify-between gap-5 sm:flex-row sm:items-center">
         <LocalSearch
