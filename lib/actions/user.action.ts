@@ -24,9 +24,9 @@ export async function getUserByClerkId(params: any) {
   try {
     connectToDatabase();
 
-    const { userId } = params;
+    const { clerkId } = params;
 
-    const user = await User.findOne({ clerkId: userId });
+    const user = await User.findOne({ clerkId });
 
     return user;
   } catch (error) {
@@ -39,7 +39,11 @@ export async function getAllUsers(params: GetAllUsersParams) {
   try {
     connectToDatabase();
 
-    const users = await User.find({}).sort({ createdAt: -1 });
+    const searchFilters = params.searchQuery
+      ? { name: { $regex: params.searchQuery, $options: "i" } }
+      : {};
+
+    const users = await User.find({ ...searchFilters }).sort({ createdAt: -1 });
 
     return { users };
   } catch (error) {
@@ -134,16 +138,21 @@ export async function toggleSaveQuestion(params: ToggleSaveQuestionParams) {
 }
 
 export const getSavedQuestions = async (params: GetSavedQuestionsParams) => {
-  const { clerkId } = params;
-
   try {
     connectToDatabase();
+
+    const { clerkId } = params;
+
+    const searchFilters = params.searchQuery
+      ? { title: { $regex: params.searchQuery, $options: "i" } }
+      : {};
 
     const user = await getUserByClerkId({ clerkId });
     if (!user) throw new Error("User not found");
 
     const questions = await Question.find({
       _id: { $in: user.saved },
+      ...searchFilters,
     })
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })

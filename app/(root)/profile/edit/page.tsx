@@ -4,9 +4,9 @@ import { auth } from "@clerk/nextjs";
 import React from "react";
 
 const EditProfile = async () => {
-  const { userId } = auth();
+  const { userId: clerkId } = auth();
 
-  const user = await getUserByClerkId({ userId });
+  const user = await getUserByClerkId({ clerkId });
 
   return (
     <>

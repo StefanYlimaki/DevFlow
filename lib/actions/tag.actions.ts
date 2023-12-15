@@ -17,7 +17,11 @@ export async function getAllTags(params: GetAllTagsParams) {
   try {
     connectToDatabase();
 
-    const tags = await Tag.find({}).sort({ createdAt: -1 });
+    const searchFilters = params.searchQuery
+      ? { name: { $regex: params.searchQuery, $options: "i" } }
+      : {};
+
+    const tags = await Tag.find({ ...searchFilters }).sort({ createdAt: -1 });
 
     return { tags };
   } catch (error) {

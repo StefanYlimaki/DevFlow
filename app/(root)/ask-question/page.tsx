@@ -4,8 +4,8 @@ import { auth } from "@clerk/nextjs";
 import React from "react";
 
 const AskQuestion = async () => {
-  const { userId } = auth();
-  const mongoUser = await getUserByClerkId({ userId });
+  const { userId: clerkId } = auth();
+  const mongoUser = await getUserByClerkId({ clerkId });
 
   if (!mongoUser) return null;
 

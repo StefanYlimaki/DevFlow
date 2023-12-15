@@ -18,7 +18,11 @@ export async function getQuestions(params: GetQuestionsParams) {
   try {
     connectToDatabase();
 
-    const questions = await Question.find({})
+    const searchFilters = params.searchQuery
+      ? { title: { $regex: params.searchQuery, $options: "i" } }
+      : {};
+
+    const questions = await Question.find({ ...searchFilters })
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
       .sort({ createdAt: -1 });

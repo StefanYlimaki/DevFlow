@@ -7,13 +7,14 @@ import { getSavedQuestions } from "@/lib/actions/user.action";
 import { auth } from "@clerk/nextjs";
 import React from "react";
 
-const Home = async () => {
+const Home = async ({ searchParams }: { searchParams: { q: string } }) => {
   const { userId: clerkId } = auth();
 
   if (!clerkId) return null;
 
   const result = await getSavedQuestions({
     clerkId,
+    searchQuery: searchParams.q,
   });
 
   if (!result) return null;

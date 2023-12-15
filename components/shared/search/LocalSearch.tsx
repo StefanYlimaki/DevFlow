@@ -1,7 +1,8 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
+import { usePathname, useRouter, useSearchParams } from "next/navigation"; // Add useNavigation
 
 interface Props {
   route: string;
@@ -11,13 +12,52 @@ interface Props {
   otherClasses?: string;
 }
 
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
 const LocalSearch = ({
-  route,
   iconPosition,
   imgSrc,
   placeholder,
   otherClasses,
 }: Props) => {
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const searchParams = useSearchParams();
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
+  const pathname = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!pathname || !router || !searchParams) return; // Prevent useless execution
+
+    const params = new URLSearchParams(searchParams); // current URL query string
+
+    if (debouncedSearchTerm === "") {
+      params.delete("q"); // Remove the "q" querystring parameter if the value of the input is empty
+    } else {
+      params.set("q", debouncedSearchTerm); // Update the "q" querystring parameter value to the value of the input
+    }
+
+    router.push(pathname + "?" + params.toString()); // Push the new URL to history stack
+  }, [debouncedSearchTerm, pathname, router, searchParams]);
+
+  const handleChange = (e: { target: { value: string } }) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <div
       className={`background-light800_darkgradient flex min-h-[56px] grow items-center gap-4 rounded-[10px] px-4 md:w-full ${otherClasses}`}
@@ -35,9 +75,9 @@ const LocalSearch = ({
       <Input
         type="text"
         placeholder={placeholder}
-        value=""
-        onChange={() => {}}
-        className="paragraph-regular no-focus placeholder border-none bg-transparent shadow-none outline-none"
+        value={searchTerm}
+        onChange={handleChange}
+        className="paragraph-regular no-focus placeholder border-none bg-transparent text-dark-100 shadow-none outline-none dark:text-light-900 "
       />
 
       {iconPosition === "right" && (
