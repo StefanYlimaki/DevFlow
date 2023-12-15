@@ -6,6 +6,7 @@ import {
   GetAllTagsParams,
   GetQuestionsByTagIdParams,
   GetTopInteractedTagsParams,
+  GetTopTagsParams,
 } from "./shared.types";
 import Tag, { ITag } from "@/database/tag.modal";
 import Question from "@/database/question.modal";
@@ -17,6 +18,25 @@ export async function getAllTags(params: GetAllTagsParams) {
     connectToDatabase();
 
     const tags = await Tag.find({}).sort({ createdAt: -1 });
+
+    return { tags };
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function getTopTags(params: GetTopTagsParams) {
+  try {
+    const limit = params.limit || 5;
+
+    connectToDatabase();
+
+    const tags = await Tag.aggregate([
+      { $project: { name: 1, numberOfQuestions: { $size: "$questions" } } },
+      { $sort: { numberOfQuestions: -1 } },
+      { $limit: limit },
+    ]);
 
     return { tags };
   } catch (error) {

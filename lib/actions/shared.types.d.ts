@@ -58,6 +58,10 @@ export interface GetQuestionsParams {
   filter?: string;
 }
 
+export interface GetTopQuestionsParams {
+  limit?: number;
+}
+
 export interface CreateQuestionParams {
   title: string;
   content: string;
@@ -95,6 +99,10 @@ export interface GetAllTagsParams {
   pageSize?: number;
   filter?: string;
   searchQuery?: string;
+}
+
+export interface GetTopTagsParams {
+  limit?: number;
 }
 
 export interface GetQuestionsByTagIdParams {

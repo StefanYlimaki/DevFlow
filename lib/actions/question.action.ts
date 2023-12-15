@@ -8,6 +8,7 @@ import {
   EditQuestionParams,
   GetQuestionByIdParams,
   GetQuestionsParams,
+  GetTopQuestionsParams,
   QuestionVoteParams,
 } from "./shared.types";
 import User from "@/database/user.modal";
@@ -26,6 +27,24 @@ export async function getQuestions(params: GetQuestionsParams) {
   } catch (error) {
     console.error(error);
     throw error;
+  }
+}
+
+export async function getTopQuestions(params: GetTopQuestionsParams) {
+  try {
+    const limit = params.limit || 5;
+
+    connectToDatabase();
+
+    const questions = await Question.find({})
+      .populate({ path: "tags", model: Tag })
+      .populate({ path: "author", model: User })
+      .sort({ views: -1, upvotes: -1 })
+      .limit(limit);
+
+    return { questions };
+  } catch (error) {
+    console.error(error);
   }
 }
 
