@@ -40,8 +40,6 @@ const EditRemoveButtons = ({
     )
       return;
 
-    console.log("delete", contentId, pathname);
-
     const payload = {
       id: JSON.parse(contentId),
       path: pathname,

@@ -43,7 +43,7 @@ const Question = ({ mongoUserId, questionData, type }: Props) => {
     defaultValues: {
       title: questionData?.title || "",
       content: questionData?.content || "",
-      tags: JSON.parse(questionData?.tags) || [],
+      tags: type === "edit" ? JSON.parse(questionData?.tags) : [],
     },
   });
 

@@ -18,6 +18,7 @@ import { revalidatePath } from "next/cache";
 import Question from "@/database/question.modal";
 import Tag from "@/database/tag.modal";
 import Answer from "@/database/answer.modal";
+import console from "console";
 
 export async function getUserByClerkId(params: any) {
   try {
@@ -231,8 +232,6 @@ export const deleteAnswer = async (params: DeleteAnswerParams) => {
     const answer = Answer.findByIdAndDelete(id);
 
     if (!answer) return { status: "failed", message: "Answer not found" };
-
-    console.log("done");
 
     revalidatePath(path);
 
