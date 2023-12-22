@@ -41,17 +41,17 @@ const LocalSearch = ({
   const router = useRouter();
 
   useEffect(() => {
-    if (!pathname || !router || !searchParams) return; // Prevent useless execution
+    if (!pathname || !router || !searchParams) return;
 
-    const params = new URLSearchParams(searchParams); // current URL query string
+    const params = new URLSearchParams(searchParams);
 
     if (debouncedSearchTerm === "") {
-      params.delete("q"); // Remove the "q" querystring parameter if the value of the input is empty
+      params.delete("q");
     } else {
-      params.set("q", debouncedSearchTerm); // Update the "q" querystring parameter value to the value of the input
+      params.set("q", debouncedSearchTerm);
     }
 
-    router.push(pathname + "?" + params.toString()); // Push the new URL to history stack
+    router.push(pathname + "?" + params.toString());
   }, [debouncedSearchTerm, pathname, router, searchParams]);
 
   const handleChange = (e: { target: { value: string } }) => {
