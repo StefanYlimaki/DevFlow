@@ -40,7 +40,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
   try {
     connectToDatabase();
 
-    const { searchQuery } = params;
+    const { searchQuery, filter } = params;
 
     const query: FilterQuery<typeof Question> = {};
 
@@ -51,7 +51,23 @@ export async function getAllUsers(params: GetAllUsersParams) {
       ];
     }
 
-    const users = await User.find(query).sort({ createdAt: -1 });
+    let sortOptions = {};
+
+    switch (filter) {
+      case "old_users":
+        sortOptions = { joinedAt: 1 };
+        break;
+      case "new_users":
+        sortOptions = { joinedAt: -1 };
+        break;
+      case "top_contributors":
+        sortOptions = { totalQuestions: -1, totalAnswers: -1 };
+        break;
+      default:
+        sortOptions = {};
+    }
+
+    const users = await User.find(query).sort(sortOptions);
 
     return { users };
   } catch (error) {

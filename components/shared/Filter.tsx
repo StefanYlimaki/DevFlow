@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   Select,
@@ -7,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 interface Props {
   filters: { name: string; value: string }[];
@@ -15,9 +17,25 @@ interface Props {
 }
 
 const Filter = ({ filters, otherClasses, containerClasses }: Props) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const setFilter = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (params.get("f") === value) {
+      params.delete("f");
+    } else {
+      params.set("f", value);
+    }
+
+    router.push(pathname + "?" + params.toString());
+  };
+
   return (
     <div className={`relative ${containerClasses}`}>
-      <Select>
+      <Select onValueChange={(value) => setFilter(value)}>
         <SelectTrigger
           className={`${otherClasses} body-regular light-border background-light800_dark300 text-dark500_light700 border px-5 py-2.5`}
         >
