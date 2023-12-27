@@ -75,7 +75,6 @@ const AllAnswers = async ({
                 </div>
               </div>
             </div>
-
             <ParseHTML data={answer.content} />
           </article>
         ))}

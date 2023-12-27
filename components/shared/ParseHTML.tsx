@@ -35,7 +35,14 @@ const ParseHTML = ({ data }: Props) => {
     Prism.highlightAll();
   }, []);
 
-  return <div className="text-dark200_light900">{parse(data)}</div>;
+  return (
+    <div
+      className="text-dark200_light900 w-full min-w-full"
+      style={{ width: "1px", wordWrap: "break-word" }}
+    >
+      {parse(data)}
+    </div>
+  );
 };
 
 export default ParseHTML;

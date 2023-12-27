@@ -5,10 +5,10 @@ import { Button } from "../ui/button";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 
 const HomeFilters = () => {
-  const active = "newest";
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const active = searchParams.get("f") || "";
 
   const setFilter = (value: string) => {
     const params = new URLSearchParams(searchParams);
