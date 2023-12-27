@@ -2,16 +2,34 @@
 import { HomePageFilters } from "@/constants/filters";
 import React from "react";
 import { Button } from "../ui/button";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 
 const HomeFilters = () => {
   const active = "newest";
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const setFilter = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (params.get("f") === value) {
+      params.delete("f");
+    } else {
+      params.set("f", value);
+    }
+
+    router.push(pathname + "?" + params.toString());
+  };
 
   return (
     <div className="mt-4 w-full flex-wrap gap-3 max-md:hidden md:flex ">
       {HomePageFilters.map((filter) => (
         <Button
           key={filter.name}
-          onClick={() => {}}
+          onClick={() => {
+            setFilter(filter.value);
+          }}
           className={`body-medium rounded-lg px-6 py-3 capitalize shadow-none ${
             active === filter.value
               ? "bg-primary-100 text-primary-500"

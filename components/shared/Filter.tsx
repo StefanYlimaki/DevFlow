@@ -1,5 +1,4 @@
 import React from "react";
-// import RenderTag from "./RenderTag";
 import {
   Select,
   SelectContent,

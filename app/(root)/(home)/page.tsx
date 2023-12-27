@@ -9,8 +9,15 @@ import { getQuestions } from "@/lib/actions/question.action";
 import Link from "next/link";
 import React from "react";
 
-const Home = async ({ searchParams }: { searchParams: { q: string } }) => {
-  const result = await getQuestions({ searchQuery: searchParams.q });
+const Home = async ({
+  searchParams,
+}: {
+  searchParams: { q: string; f: string };
+}) => {
+  const result = await getQuestions({
+    searchQuery: searchParams.q,
+    filter: searchParams.f,
+  });
 
   return (
     <>
