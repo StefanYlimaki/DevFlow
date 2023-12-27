@@ -16,17 +16,31 @@ export async function getAnswersByQuestionId(params: GetAnswersParams) {
   try {
     connectToDatabase();
 
-    const { questionId } = params;
+    const { questionId, sortBy } = params;
+
+    let sortOptions = {};
+
+    switch (sortBy) {
+      case "most_upvotes":
+        sortOptions = { upvotes: -1 };
+        break;
+      case "least_upvotes":
+        sortOptions = { upvotes: 1 };
+        break;
+      case "recent":
+        sortOptions = { createdAt: -1 };
+        break;
+      case "old":
+        sortOptions = { createdAt: 1 };
+        break;
+    }
 
     const answers = await Answer.find({ question: questionId })
       .populate({
         path: "author",
         model: User,
       })
-      .sort({
-        upvotes: -1,
-        createdAt: -1,
-      });
+      .sort(sortOptions);
 
     return { answers };
   } catch (error) {

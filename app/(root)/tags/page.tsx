@@ -5,8 +5,15 @@ import LocalSearch from "@/components/shared/search/LocalSearch";
 import { TagFilters } from "@/constants/filters";
 import { getAllTags } from "@/lib/actions/tag.actions";
 
-const Tags = async ({ searchParams }: { searchParams: { q: string } }) => {
-  const result = await getAllTags({ searchQuery: searchParams.q });
+const Tags = async ({
+  searchParams,
+}: {
+  searchParams: { q: string; f: string };
+}) => {
+  const result = await getAllTags({
+    searchQuery: searchParams.q,
+    filter: searchParams.f,
+  });
 
   return (
     <>

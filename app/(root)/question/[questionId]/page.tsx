@@ -12,7 +12,13 @@ import { getUserByClerkId } from "@/lib/actions/user.action";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Votes from "@/components/shared/Votes";
 
-const Question = async ({ params }: { params: { questionId: string } }) => {
+const Question = async ({
+  params,
+  searchParams,
+}: {
+  params: { questionId: string };
+  searchParams: { f: string };
+}) => {
   const { questionId } = params;
   const question = await getQuestionById({ questionId });
   const { userId: clerkId } = auth();
@@ -102,6 +108,7 @@ const Question = async ({ params }: { params: { questionId: string } }) => {
         questionId={result._id}
         mongoUser={mongoUser}
         totalAnswers={result.answers.length}
+        filter={searchParams?.f}
       />
 
       <Answer

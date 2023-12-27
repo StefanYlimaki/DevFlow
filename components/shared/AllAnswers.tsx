@@ -22,7 +22,11 @@ const AllAnswers = async ({
   page,
   filter,
 }: Props) => {
-  const result = await getAnswersByQuestionId({ questionId });
+  const result = await getAnswersByQuestionId({
+    questionId,
+    page: page ? +page : 1,
+    sortBy: filter,
+  });
 
   if (!result) {
     return null;

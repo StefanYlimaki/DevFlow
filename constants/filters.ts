@@ -1,6 +1,6 @@
 export const AnswerFilters = [
-  { name: "Highest Upvotes", value: "highestUpvotes" },
-  { name: "Lowest Upvotes", value: "lowestUpvotes" },
+  { name: "Most Upvotes", value: "most_upvotes" },
+  { name: "Least Upvotes", value: "least_upvotes" },
   { name: "Most Recent", value: "recent" },
   { name: "Oldest", value: "old" },
 ];
@@ -23,7 +23,7 @@ export const TagFilters = [
   { name: "Popular", value: "popular" },
   { name: "Recent", value: "recent" },
   { name: "Name", value: "name" },
-  { name: "Old", value: "old" },
+  { name: "Oldest", value: "oldest" },
 ];
 
 export const HomePageFilters = [
