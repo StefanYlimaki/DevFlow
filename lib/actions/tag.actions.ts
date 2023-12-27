@@ -17,11 +17,17 @@ export async function getAllTags(params: GetAllTagsParams) {
   try {
     connectToDatabase();
 
-    const searchFilters = params.searchQuery
-      ? { name: { $regex: params.searchQuery, $options: "i" } }
-      : {};
+    const { searchQuery } = params;
+    const query: FilterQuery<typeof Tag> = {};
 
-    const tags = await Tag.find({ ...searchFilters }).sort({ createdAt: -1 });
+    if (searchQuery) {
+      query.$or = [
+        { name: { $regex: searchQuery, $options: "i" } },
+        { description: { $regex: searchQuery, $options: "i" } },
+      ];
+    }
+
+    const tags = await Tag.find(query).sort({ createdAt: -1 });
 
     return { tags };
   } catch (error) {
@@ -77,17 +83,22 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
   try {
     connectToDatabase();
 
-    // eslint-disable-next-line no-unused-vars
-    const { tagId, page = 1, pageSize = 10, searchQuery } = params;
+    const { tagId, searchQuery } = params;
 
     const tagFilter: FilterQuery<ITag> = { _id: tagId };
+
+    const query: FilterQuery<typeof Question> = {};
+
+    if (searchQuery)
+      query.$or = [
+        { title: { $regex: searchQuery, $options: "i" } },
+        { content: { $regex: searchQuery, $options: "i" } },
+      ];
 
     const tag = await Tag.findOne(tagFilter).populate({
       path: "questions",
       model: Question,
-      match: searchQuery
-        ? { title: { $regex: searchQuery, $options: "i" } }
-        : {},
+      match: query,
       options: { sort: { createdAt: -1 } },
       populate: [
         { path: "tags", model: Tag, select: "_id name" },

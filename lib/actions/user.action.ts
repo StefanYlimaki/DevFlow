@@ -19,6 +19,7 @@ import Question from "@/database/question.modal";
 import Tag from "@/database/tag.modal";
 import Answer from "@/database/answer.modal";
 import console from "console";
+import { FilterQuery } from "mongoose";
 
 export async function getUserByClerkId(params: any) {
   try {
@@ -39,11 +40,18 @@ export async function getAllUsers(params: GetAllUsersParams) {
   try {
     connectToDatabase();
 
-    const searchFilters = params.searchQuery
-      ? { name: { $regex: params.searchQuery, $options: "i" } }
-      : {};
+    const { searchQuery } = params;
 
-    const users = await User.find({ ...searchFilters }).sort({ createdAt: -1 });
+    const query: FilterQuery<typeof Question> = {};
+
+    if (searchQuery) {
+      query.$or = [
+        { name: { $regex: searchQuery, $options: "i" } },
+        { username: { $regex: searchQuery, $options: "i" } },
+      ];
+    }
+
+    const users = await User.find(query).sort({ createdAt: -1 });
 
     return { users };
   } catch (error) {
@@ -141,24 +149,30 @@ export const getSavedQuestions = async (params: GetSavedQuestionsParams) => {
   try {
     connectToDatabase();
 
-    const { clerkId } = params;
+    const { clerkId, searchQuery } = params;
 
-    const searchFilters = params.searchQuery
-      ? { title: { $regex: params.searchQuery, $options: "i" } }
-      : {};
+    const query: FilterQuery<typeof Question> = {};
 
-    const user = await getUserByClerkId({ clerkId });
+    if (searchQuery) {
+      query.$or = [
+        { title: { $regex: searchQuery, $options: "i" } },
+        { content: { $regex: searchQuery, $options: "i" } },
+      ];
+    }
+
+    const user = await User.findOne({ clerkId }).populate({
+      path: "saved",
+      match: query,
+      options: { sort: { createdAt: -1 } },
+      populate: [
+        { path: "tags", model: Tag, select: "_id name" },
+        { path: "author", model: User, select: "_id clerkId name picture" },
+      ],
+    });
+
     if (!user) throw new Error("User not found");
 
-    const questions = await Question.find({
-      _id: { $in: user.saved },
-      ...searchFilters,
-    })
-      .populate({ path: "tags", model: Tag })
-      .populate({ path: "author", model: User })
-      .sort({ createdAt: -1 });
-
-    return { questions };
+    return { questions: user.saved };
   } catch (error) {
     console.error(error);
   }

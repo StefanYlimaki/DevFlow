@@ -13,16 +13,23 @@ import {
 } from "./shared.types";
 import User from "@/database/user.modal";
 import { revalidatePath } from "next/cache";
+import { FilterQuery } from "mongoose";
 
 export async function getQuestions(params: GetQuestionsParams) {
   try {
     connectToDatabase();
 
-    const searchFilters = params.searchQuery
-      ? { title: { $regex: params.searchQuery, $options: "i" } }
-      : {};
+    const { searchQuery } = params;
 
-    const questions = await Question.find({ ...searchFilters })
+    const query: FilterQuery<typeof Question> = {};
+
+    if (searchQuery)
+      query.$or = [
+        { title: { $regex: searchQuery, $options: "i" } },
+        { content: { $regex: searchQuery, $options: "i" } },
+      ];
+
+    const questions = await Question.find(query)
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User })
       .sort({ createdAt: -1 });
