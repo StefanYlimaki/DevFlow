@@ -21,7 +21,7 @@ const AnswersTab = async ({
   if (!result) return null;
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       {result.userAnswers.map((answer) => (
         <AnswerCard
           key={answer._id}

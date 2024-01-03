@@ -1,6 +1,7 @@
 import QuestionCard from "@/components/cards/QuestionCard";
 import Filter from "@/components/shared/Filter";
 import NoResult from "@/components/shared/NoResult";
+import Pagination from "@/components/shared/Pagination";
 import LocalSearch from "@/components/shared/search/LocalSearch";
 import { QuestionFilters } from "@/constants/filters";
 import { getSavedQuestions } from "@/lib/actions/user.action";
@@ -10,7 +11,7 @@ import React from "react";
 const Home = async ({
   searchParams,
 }: {
-  searchParams: { q: string; f: string };
+  searchParams: { q: string; f: string; p: string };
 }) => {
   const { userId: clerkId } = auth();
 
@@ -20,6 +21,8 @@ const Home = async ({
     clerkId,
     searchQuery: searchParams.q,
     filter: searchParams.f,
+    page: searchParams.p ? +searchParams.p : 1,
+    pageSize: 10,
   });
 
   if (!result) return null;
@@ -70,6 +73,13 @@ const Home = async ({
             />
           </div>
         )}
+      </div>
+
+      <div className="mt-10">
+        <Pagination
+          pageNumber={searchParams?.p ? +searchParams.p : 1}
+          hasNext={result.hasNext}
+        />
       </div>
     </>
   );

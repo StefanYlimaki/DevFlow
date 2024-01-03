@@ -40,7 +40,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
   try {
     connectToDatabase();
 
-    const { searchQuery, filter } = params;
+    const { searchQuery, filter, page = 1, pageSize = 1 } = params;
 
     const query: FilterQuery<typeof Question> = {};
 
@@ -67,9 +67,18 @@ export async function getAllUsers(params: GetAllUsersParams) {
         sortOptions = {};
     }
 
-    const users = await User.find(query).sort(sortOptions);
+    const skipBy = (page - 1) * pageSize;
 
-    return { users };
+    const users = await User.find(query)
+      .skip(skipBy)
+      .limit(pageSize)
+      .sort(sortOptions);
+
+    const totalUsers = await User.countDocuments(query);
+
+    const hasNext = skipBy + users.length < totalUsers;
+
+    return { users, hasNext };
   } catch (error) {
     console.error(error);
     throw error;
@@ -165,7 +174,7 @@ export const getSavedQuestions = async (params: GetSavedQuestionsParams) => {
   try {
     connectToDatabase();
 
-    const { clerkId, searchQuery, filter } = params;
+    const { clerkId, searchQuery, filter, page = 1, pageSize = 10 } = params;
 
     const query: FilterQuery<typeof Question> = {};
 
@@ -196,19 +205,37 @@ export const getSavedQuestions = async (params: GetSavedQuestionsParams) => {
         break;
     }
 
+    const skipBy = (page - 1) * pageSize;
+
     const user = await User.findOne({ clerkId }).populate({
       path: "saved",
       match: query,
-      options: { sort: sortOptions },
+      options: { sort: sortOptions, skip: skipBy, limit: pageSize },
       populate: [
         { path: "tags", model: Tag, select: "_id name" },
         { path: "author", model: User, select: "_id clerkId name picture" },
       ],
     });
 
+    const totalSavedQuestions = await User.aggregate([
+      {
+        $match: { clerkId },
+      },
+      {
+        $project: {
+          savedSize: { $size: "$saved" },
+        },
+      },
+    ]).exec();
+
+    const savedArraySize =
+      totalSavedQuestions.length > 0 ? totalSavedQuestions[0].savedSize : 0;
+
+    const hasNext = skipBy + user.saved.length < savedArraySize;
+
     if (!user) throw new Error("User not found");
 
-    return { questions: user.saved };
+    return { questions: user.saved, hasNext };
   } catch (error) {
     console.error(error);
   }
