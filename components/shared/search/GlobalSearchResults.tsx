@@ -6,9 +6,7 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import GlobalFilters from "./GlobalFilters";
-import { getQuestions } from "@/lib/actions/question.action";
-import { getAllUsers } from "@/lib/actions/user.action";
-import { getAllTags } from "@/lib/actions/tag.actions";
+import { globalSearch } from "@/lib/actions/general.action";
 
 interface Props {
   onClickOutside: () => void;
@@ -42,69 +40,41 @@ const GlobalSearchResults = ({ onClickOutside, parentRef }: Props) => {
   }, [onClickOutside, parentRef]);
 
   useEffect(() => {
-    if (!globalQuery || !searchType) return;
+    if (!globalQuery) return;
 
     const fetchResult = async () => {
       setResult([]);
       setIsLoading(true);
 
-      console.log("Fetching results");
+      try {
+        const res = await globalSearch({
+          query: globalQuery,
+          type: searchType,
+        });
 
-      let response: any;
-
-      console.log(globalQuery, searchType);
-
-      switch (searchType) {
-        case "question":
-          //   response = await getQuestions({
-          //     page: 1,
-          //     pageSize: 5,
-          //     searchQuery: globalQuery,
-          //   });
-          break;
-
-        case "answer":
-          // response = await getAnswers({
-          //     page: 1,
-          //     pageSize: 5,
-          //     searchQuery: globalQuery,
-          //   });
-          break;
-
-        case "user":
-          response = await getAllUsers({
-            page: 1,
-            pageSize: 5,
-            searchQuery: globalQuery,
-          });
-          break;
-
-        case "tag":
-          response = await getAllTags({
-            page: 1,
-            pageSize: 5,
-            searchQuery: globalQuery,
-          });
-          break;
-
-        default:
-          break;
+        setResult(JSON.parse(res || "[]"));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
       }
-
-      console.log(response);
     };
-
-    try {
-      fetchResult();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+    if (globalQuery) fetchResult();
   }, [globalQuery, searchType]);
 
-  const renderLink = () => {
-    return "/";
+  const renderLink = (type: string, id: string) => {
+    switch (type) {
+      case "question":
+        return `/question/${id}`;
+      case "answer":
+        return `/question/${id}`;
+      case "user":
+        return `/profile/${id}`;
+      case "tag":
+        return `/tags/${id}`;
+      default:
+        return "/";
+    }
   };
 
   return (
@@ -136,7 +106,7 @@ const GlobalSearchResults = ({ onClickOutside, parentRef }: Props) => {
             {result?.length > 0 ? (
               result.map((item: any, index: number) => (
                 <Link
-                  href={renderLink()}
+                  href={renderLink(item.type, item.id)}
                   key={item.type + item.id + index}
                   className="flex w-full cursor-pointer gap-3 px-5 py-2.5 hover:bg-light-700/50 dark:bg-dark-500/50"
                 >

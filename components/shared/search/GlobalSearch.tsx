@@ -46,6 +46,10 @@ const GlobalSearch = () => {
     router.push(pathname + "?" + params.toString());
   }, [debouncedSearchTerm, pathname, router, searchParams]);
 
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
+
   const handleChange = (e: { target: { value: string } }) => {
     setSearchTerm(e.target.value);
   };
