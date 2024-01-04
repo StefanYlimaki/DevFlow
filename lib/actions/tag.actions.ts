@@ -109,7 +109,7 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
   try {
     connectToDatabase();
 
-    const { tagId, searchQuery } = params;
+    const { tagId, searchQuery, page = 1, pageSize = 10 } = params;
 
     const tagFilter: FilterQuery<ITag> = { _id: tagId };
 
@@ -121,11 +121,13 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
         { content: { $regex: searchQuery, $options: "i" } },
       ];
 
+    const skipBy = (page - 1) * pageSize;
+
     const tag = await Tag.findOne(tagFilter).populate({
       path: "questions",
       model: Question,
       match: query,
-      options: { sort: { createdAt: -1 } },
+      options: { sort: { createdAt: -1 }, skip: skipBy, limit: pageSize },
       populate: [
         { path: "tags", model: Tag, select: "_id name" },
         { path: "author", model: User, select: "_id clerkId name picture" },
@@ -134,9 +136,21 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
 
     if (!tag) throw new Error("Tag not found");
 
+    const totalTagsQuestions = await Tag.aggregate([
+      { $match: { _id: tagId } },
+      { $project: { numberOfQuestions: { $size: "$questions" } } },
+    ]).exec();
+
+    const TagsQuestionsArraySize =
+      totalTagsQuestions.length > 0
+        ? totalTagsQuestions[0].numberOfQuestions
+        : 0;
+
+    const hasNext = skipBy + tag.questions.length < TagsQuestionsArraySize;
+
     const questions = tag.questions;
 
-    return { tagTitle: tag.name, questions };
+    return { tagTitle: tag.name, questions, hasNext };
   } catch (error) {
     console.error(error);
   }

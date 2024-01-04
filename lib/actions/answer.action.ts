@@ -16,7 +16,7 @@ export async function getAnswersByQuestionId(params: GetAnswersParams) {
   try {
     connectToDatabase();
 
-    const { questionId, sortBy } = params;
+    const { questionId, sortBy, page = 1, pageSize = 10 } = params;
 
     let sortOptions = {};
 
@@ -35,14 +35,21 @@ export async function getAnswersByQuestionId(params: GetAnswersParams) {
         break;
     }
 
+    const skipBy = (page - 1) * pageSize;
+
     const answers = await Answer.find({ question: questionId })
+      .skip(skipBy)
+      .limit(pageSize)
       .populate({
         path: "author",
         model: User,
       })
       .sort(sortOptions);
 
-    return { answers };
+    const totalAnswers = await Answer.countDocuments({ question: questionId });
+    const hasNext = skipBy + pageSize < totalAnswers;
+
+    return { answers, hasNext };
   } catch (error) {
     console.error(error);
   }

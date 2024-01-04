@@ -16,7 +16,7 @@ const Profile = async ({
   searchParams,
 }: {
   params: { clerkId: string };
-  searchParams: any;
+  searchParams: { p: string };
 }) => {
   const { userId: currentUserId } = auth();
 
@@ -112,6 +112,7 @@ const Profile = async ({
               searchParams={searchParams}
               userId={JSON.stringify(userInfo.user._id)}
               clerkId={clerkId}
+              pageNumber={searchParams.p ? +searchParams.p : 1}
             />
           </TabsContent>
           <TabsContent value="answers" className="flex w-full flex-col gap-6">
@@ -119,11 +120,11 @@ const Profile = async ({
               searchParams={searchParams}
               userId={JSON.stringify(userInfo.user._id)}
               clerkId={clerkId}
+              pageNumber={searchParams.p ? +searchParams.p : 1}
             />
           </TabsContent>
         </Tabs>
       </div>
-      <div className="mt-10 flex gap-10"></div>
     </div>
   );
 };

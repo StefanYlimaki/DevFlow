@@ -17,7 +17,7 @@ const Question = async ({
   searchParams,
 }: {
   params: { questionId: string };
-  searchParams: { f: string };
+  searchParams: { f: string; p: string };
 }) => {
   const { questionId } = params;
   const question = await getQuestionById({ questionId });
@@ -108,6 +108,7 @@ const Question = async ({
         questionId={result._id}
         mongoUser={mongoUser}
         totalAnswers={result.answers.length}
+        pageNumber={searchParams.p ? +searchParams.p : 1}
         filter={searchParams?.f}
       />
 

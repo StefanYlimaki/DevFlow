@@ -273,14 +273,18 @@ export const getQuestionsByUser = async (params: GetUserStatsParams) => {
 
     const totalQuestions = await Question.countDocuments({ author: user._id });
 
+    const skipBy = (page - 1) * pageSize;
+
     const userQuestions = await Question.find({ author: user._id })
-      .skip((page - 1) * pageSize)
+      .skip(skipBy)
       .limit(pageSize)
       .sort({ views: -1, upvotes: -1 })
       .populate({ path: "tags", model: Tag })
       .populate({ path: "author", model: User });
 
-    return { totalQuestions, userQuestions };
+    const hasNext = skipBy + userQuestions.length < totalQuestions;
+
+    return { totalQuestions, userQuestions, hasNext };
   } catch (error) {
     console.error(error);
   }
@@ -296,14 +300,18 @@ export const getAnswersByUser = async (params: GetUserStatsParams) => {
 
     const totalAnswers = await Answer.countDocuments({ author: _id });
 
+    const skipBy = (page - 1) * pageSize;
+
     const userAnswers = await Answer.find({ author: _id })
-      .skip((page - 1) * pageSize)
+      .skip(skipBy)
       .limit(pageSize)
       .sort({ upvotes: -1 })
       .populate("question", "_id title")
       .populate("author", "_id clerkId name picture");
 
-    return { totalAnswers, userAnswers };
+    const hasNext = skipBy + userAnswers.length < totalAnswers;
+
+    return { totalAnswers, userAnswers, hasNext };
   } catch (error) {
     console.error(error);
   }
