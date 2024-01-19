@@ -20,6 +20,8 @@ import Tag from "@/database/tag.modal";
 import Answer from "@/database/answer.modal";
 import console from "console";
 import { FilterQuery } from "mongoose";
+import { BadgeCounts, BadgeCriteriaType } from "@/types";
+import { assignBadges } from "../utils";
 
 export async function getUserByClerkId(params: any) {
   try {
@@ -253,39 +255,37 @@ export const getUserInfo = async (params: GetUserByIdParams) => {
 
     const totalQuestions = await Question.countDocuments({ author: user._id });
     const totalAnswers = await Answer.countDocuments({ author: user._id });
-    const totalQuestionsViews = await Question.aggregate([
+    const [totalQuestionViews] = await Question.aggregate([
       { $match: { author: user._id } },
       { $group: { _id: null, totalViews: { $sum: "$views" } } },
     ]);
+    const [totalQuestionUpvotes] = await Question.aggregate([
+      { $match: { author: user._id } },
+      { $project: { _id: 0, upvotes: { $size: "$upvotes" } } },
+      { $group: { _id: null, totalUpvotes: { $sum: "$upvotes" } } },
+    ]);
+    const [totalAnswerUpvotes] = await Answer.aggregate([
+      { $match: { author: user._id } },
+      { $project: { _id: 0, upvotes: { $size: "$upvotes" } } },
+      { $group: { _id: null, totalUpvotes: { $sum: "$upvotes" } } },
+    ]);
+    
+    const criteria = [
+      { type: "QUESTION_COUNT" as BadgeCriteriaType, count: totalQuestions },
+      { type: "ANSWER_COUNT" as BadgeCriteriaType, count: totalAnswers },
+      { type: "QUESTION_UPVOTES" as BadgeCriteriaType, count: totalQuestionUpvotes?.totalUpvotes || 0 },
+      { type: "ANSWER_COUNT" as BadgeCriteriaType, count: totalAnswerUpvotes?.totalUpvotes || 0 },
+      { type: "TOTAL_VIEWS" as BadgeCriteriaType, count: totalQuestionViews?.totalViews || 0 },
+    ]
 
-    let bronzeBadges = totalQuestions >= 10 ? 1 : 0;
-    let silverBadges = totalQuestions >= 50 ? 1 : 0;
-    let goldBadges = totalQuestions >= 100 ? 1 : 0;
-
-    bronzeBadges = totalAnswers >= 10 ? bronzeBadges + 1 : bronzeBadges;
-    silverBadges = totalAnswers >= 50 ? silverBadges + 1 : silverBadges;
-    goldBadges = totalAnswers >= 100 ? goldBadges + 1 : goldBadges;
-
-    bronzeBadges =
-      totalQuestionsViews[0].totalViews >= 100
-        ? bronzeBadges + 1
-        : bronzeBadges;
-
-    silverBadges =
-      totalQuestionsViews[0].totalViews >= 500
-        ? silverBadges + 1
-        : silverBadges;
-
-    goldBadges =
-      totalQuestionsViews[0].totalViews >= 1000 ? goldBadges + 1 : goldBadges;
+    const badgeCounts: BadgeCounts = assignBadges({ criteria });
 
     return {
       user,
       totalQuestions,
       totalAnswers,
-      goldBadges,
-      silverBadges,
-      bronzeBadges,
+      badgeCounts,
+      reputation: user.reputation,
     };
   } catch (error) {
     console.error(error);
