@@ -27,6 +27,8 @@ const Pagination = ({ pageNumber, hasNext }: Props) => {
     router.push(pathname + "?" + params.toString());
   };
 
+  if (pageNumber === 1 && !hasNext) return null;
+
   return (
     <div className="flex w-full items-center justify-center gap-2">
       <Button
