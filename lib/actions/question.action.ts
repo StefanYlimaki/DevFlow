@@ -14,6 +14,14 @@ import {
 import User from "@/database/user.modal";
 import { revalidatePath } from "next/cache";
 import { FilterQuery } from "mongoose";
+import {
+  POINTS_FOR_CREATING_QUESTION,
+  POINTS_FOR_DOWNVOTING_QUESTION,
+  POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION,
+  POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION,
+  POINTS_FOR_UPVOTING_QUESTION,
+} from "@/constants/points";
+import Interaction from "@/database/interaction.modal";
 
 export async function getQuestions(params: GetQuestionsParams) {
   try {
@@ -138,8 +146,16 @@ export async function createQuestion(params: CreateQuestionParams) {
     });
 
     // Create an interaction record for the user's ask_question action
+    await Interaction.create({
+      user: author,
+      action: "ask_question",
+      question: question._id,
+      tags: tagDocuments,
+    });
 
-    // Increment author's reputation by 5 for asking a question
+    await User.findByIdAndUpdate(author, {
+      $inc: { reputation: POINTS_FOR_CREATING_QUESTION },
+    });
     revalidatePath(path);
   } catch (error) {
     console.error(error);
@@ -177,15 +193,33 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
 
     const question = await Question.findById(JSON.parse(questionId));
 
+    let userReputationChange = 0;
+    let authorReputationChange = 0;
+
     if (hasDownvoted) {
       question.downvotes.pull(user._id);
+      userReputationChange = -POINTS_FOR_DOWNVOTING_QUESTION;
+      authorReputationChange = -POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION;
     } else if (hasUpvoted) {
       question.upvotes.pull(user._id);
       question.downvotes.push(user._id);
+      userReputationChange =
+        -POINTS_FOR_UPVOTING_QUESTION + POINTS_FOR_DOWNVOTING_QUESTION;
+      authorReputationChange =
+        -POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION +
+        POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION;
     } else {
       question.downvotes.push(user._id);
+      userReputationChange = POINTS_FOR_DOWNVOTING_QUESTION;
+      authorReputationChange = POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION;
     }
 
+    await User.findByIdAndUpdate(user._id, {
+      $inc: { reputation: userReputationChange },
+    });
+    await User.findByIdAndUpdate(question.author, {
+      $inc: { reputation: authorReputationChange },
+    });
     await question.save();
 
     revalidatePath(path);
@@ -204,14 +238,33 @@ export async function upvoteQuestion(params: QuestionVoteParams) {
 
     const question = await Question.findById(JSON.parse(questionId));
 
+    let userReputationChange = 0;
+    let authorReputationChange = 0;
+
     if (hasUpvoted) {
       question.upvotes.pull(user._id);
+      userReputationChange = -POINTS_FOR_UPVOTING_QUESTION;
+      authorReputationChange = -POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION;
     } else if (hasDownvoted) {
       question.downvotes.pull(user._id);
       question.upvotes.push(user._id);
+      userReputationChange =
+        -POINTS_FOR_DOWNVOTING_QUESTION + POINTS_FOR_UPVOTING_QUESTION;
+      authorReputationChange =
+        -POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION +
+        POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION;
     } else {
       question.upvotes.push(user._id);
+      userReputationChange = POINTS_FOR_UPVOTING_QUESTION;
+      authorReputationChange = POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION;
     }
+
+    await User.findByIdAndUpdate(user._id, {
+      $inc: { reputation: userReputationChange },
+    });
+    await User.findByIdAndUpdate(question.author, {
+      $inc: { reputation: authorReputationChange },
+    });
 
     await question.save();
 

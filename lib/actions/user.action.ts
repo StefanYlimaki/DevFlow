@@ -61,7 +61,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
         sortOptions = { joinedAt: -1 };
         break;
       case "top_contributors":
-        sortOptions = { totalQuestions: -1, totalAnswers: -1 };
+        sortOptions = { reputation: -1 };
         break;
       default:
         sortOptions = {};
