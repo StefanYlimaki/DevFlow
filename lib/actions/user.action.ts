@@ -253,8 +253,40 @@ export const getUserInfo = async (params: GetUserByIdParams) => {
 
     const totalQuestions = await Question.countDocuments({ author: user._id });
     const totalAnswers = await Answer.countDocuments({ author: user._id });
+    const totalQuestionsViews = await Question.aggregate([
+      { $match: { author: user._id } },
+      { $group: { _id: null, totalViews: { $sum: "$views" } } },
+    ]);
 
-    return { user, totalQuestions, totalAnswers };
+    let bronzeBadges = totalQuestions >= 10 ? 1 : 0;
+    let silverBadges = totalQuestions >= 50 ? 1 : 0;
+    let goldBadges = totalQuestions >= 100 ? 1 : 0;
+
+    bronzeBadges = totalAnswers >= 10 ? bronzeBadges + 1 : bronzeBadges;
+    silverBadges = totalAnswers >= 50 ? silverBadges + 1 : silverBadges;
+    goldBadges = totalAnswers >= 100 ? goldBadges + 1 : goldBadges;
+
+    bronzeBadges =
+      totalQuestionsViews[0].totalViews >= 100
+        ? bronzeBadges + 1
+        : bronzeBadges;
+
+    silverBadges =
+      totalQuestionsViews[0].totalViews >= 500
+        ? silverBadges + 1
+        : silverBadges;
+
+    goldBadges =
+      totalQuestionsViews[0].totalViews >= 1000 ? goldBadges + 1 : goldBadges;
+
+    return {
+      user,
+      totalQuestions,
+      totalAnswers,
+      goldBadges,
+      silverBadges,
+      bronzeBadges,
+    };
   } catch (error) {
     console.error(error);
   }
