@@ -30,11 +30,16 @@ export default function Loading() {
             key={item}
             className="card-wrapper h-[180px] w-full rounded-[10px] p-9 sm:px-11"
           >
-            <div className="flex flex-col gap-2">
-                <Skeleton className="h-[20px] w-full bg-slate-900/50 " />
-                <Skeleton className="h-[20px] w-[50px] bg-slate-900/10 " />
-                <Skeleton className="h-[20px] w-2/4 bg-slate-900/50 " />
-                <Skeleton className="h-[20px] w-2/4 bg-slate-900/50 " />
+            <div className="flex flex-col gap-4">
+              <Skeleton className="h-[20px] w-full bg-slate-900/50 " />
+
+              <div className="flex gap-2">
+                <Skeleton className="h-[30px] w-[60px] bg-slate-900/10 " />
+                <Skeleton className="h-[30px] w-[60px] bg-slate-900/10 " />
+                <Skeleton className="h-[30px] w-[60px] bg-slate-900/10 " />
+              </div>
+
+              <Skeleton className="h-[20px] w-1/4 bg-slate-900/50 " />
             </div>
           </Skeleton>
         ))}
