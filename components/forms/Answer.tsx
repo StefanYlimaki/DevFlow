@@ -28,6 +28,7 @@ interface Props {
 const Answer = ({ question, questionId, authorId }: Props) => {
   const pathname = usePathname();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAISubmitting, setIsAISubmitting] = useState(false);
   const { mode } = useTheme();
   const editorRef = useRef(null);
 
@@ -62,6 +63,36 @@ const Answer = ({ question, questionId, authorId }: Props) => {
     }
   };
 
+  const generateAIAnswer = async () => {
+    if (!authorId) return;
+    console.log(isAISubmitting);
+    try {
+      setIsAISubmitting(true);
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chatgpt`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            question,
+          }),
+        }
+      );
+
+      const aiAnswer = await response.json();
+
+      const formattedAnswer = aiAnswer.reply.replaceAll(/\n/g, "<br>");
+
+      if (editorRef.current) {
+        // @ts-ignore
+        editorRef.current.setContent(formattedAnswer);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsAISubmitting(false);
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center sm:gap-2">
@@ -71,16 +102,23 @@ const Answer = ({ question, questionId, authorId }: Props) => {
 
         <Button
           className="btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none"
-          onClick={() => {}}
+          onClick={generateAIAnswer}
+          style={{ display: "none"}}
         >
-          <Image
-            src="/assets/icons/stars.svg"
-            alt="stars"
-            width={12}
-            height={12}
-            className="object-contain"
-          />
-          Generate an AI answer
+          {isAISubmitting ? (
+            "Generating..."
+          ) : (
+            <>
+              <Image
+                src="/assets/icons/stars.svg"
+                alt="stars"
+                width={12}
+                height={12}
+                className="object-contain"
+              />
+              Generate AI answer
+            </>
+          )}
         </Button>
       </div>
       <Form {...form}>
