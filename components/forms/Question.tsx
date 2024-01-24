@@ -23,6 +23,7 @@ import Image from "next/image";
 import { createQuestion, updateQuestion } from "@/lib/actions/question.action";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/context/ThemeProvider";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Props {
   mongoUserId: string;
@@ -36,6 +37,7 @@ const Question = ({ mongoUserId, questionData, type }: Props) => {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof QuestionsSchema>>({
@@ -52,14 +54,14 @@ const Question = ({ mongoUserId, questionData, type }: Props) => {
     setIsSubmitting(true);
 
     try {
-      if (type === "edit")
+      if (type === "edit") 
         await updateQuestion({
           title: values.title,
           content: values.content,
           path: pathname,
           questionId: questionData.questionId,
         });
-      else
+       else
         await createQuestion({
           title: values.title,
           content: values.content,
@@ -72,6 +74,16 @@ const Question = ({ mongoUserId, questionData, type }: Props) => {
     } catch (error) {
     } finally {
       setIsSubmitting(false);
+      if (type === "edit")
+        toast({
+          title: "Question Edited!",
+          description: "Your question has been successfully edited.",
+        });
+      else
+        toast({
+          title: "Question Posted!",
+          description: "Your question has been successfully posted.",
+        });
     }
   }
 

@@ -11,6 +11,7 @@ import { formatNumber } from "@/lib/utils";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "../ui/use-toast";
 
 interface Props {
   type: string;
@@ -45,6 +46,12 @@ const Votes = ({
   }, [itemId, userId, pathname, router, type]);
 
   const handleVote = async (action: string) => {
+    if (!userId)
+      return toast({
+        title: "Please log in",
+        description: "You need to be logged in to vote",
+      });
+
     // Handling all upvotes
     if (action === "upvote") {
       if (type === "question") {
@@ -56,8 +63,20 @@ const Votes = ({
             hasDownvoted,
             path: pathname,
           });
+
+          toast({
+            title: !hasUpvoted
+              ? "Question Upvoted Successfully"
+              : "Upvote Removed",
+            variant: !hasUpvoted ? "default" : "destructive",
+          });
         } catch (error) {
           console.error(error);
+          toast({
+            title: "Something went wrong",
+            description: "Please try again",
+            variant: "destructive",
+          });
         }
       }
 
@@ -70,8 +89,19 @@ const Votes = ({
             hasDownvoted,
             path: pathname,
           });
+          toast({
+            title: !hasUpvoted
+              ? "Answer Upvoted Successfully"
+              : "Upvote Removed",
+            variant: !hasUpvoted ? "default" : "destructive",
+          });
         } catch (error) {
           console.error(error);
+          toast({
+            title: "Something went wrong",
+            description: "Please try again",
+            variant: "destructive",
+          });
         }
       }
     }
@@ -87,8 +117,19 @@ const Votes = ({
             hasDownvoted,
             path: pathname,
           });
+          toast({
+            title: !hasDownvoted
+              ? "Question Downvoted Successfully"
+              : "Downvote Removed",
+            variant: !hasDownvoted ? "default" : "destructive",
+          });
         } catch (error) {
           console.error(error);
+          toast({
+            title: "Something went wrong",
+            description: "Please try again",
+            variant: "destructive",
+          });
         }
       }
 
@@ -101,8 +142,19 @@ const Votes = ({
             hasDownvoted,
             path: pathname,
           });
+          toast({
+            title: !hasDownvoted
+              ? "Answer Downvoted Successfully"
+              : "Downvote Removed",
+            variant: !hasDownvoted ? "default" : "destructive",
+          });
         } catch (error) {
           console.error(error);
+          toast({
+            title: "Something went wrong",
+            description: "Please try again",
+            variant: "destructive",
+          });
         }
       }
     }
@@ -115,8 +167,19 @@ const Votes = ({
         userId,
         path: pathname,
       });
+      toast({
+        title: !hasSaved
+          ? "Question Saved Successfully"
+          : "Question Removed from Saved Ones ",
+        variant: !hasDownvoted ? "default" : "destructive",
+      });
     } catch (error) {
       console.error(error);
+      toast({
+        title: "Something went wrong",
+        description: "Please try again",
+        variant: "destructive",
+      });
     }
   };
 
