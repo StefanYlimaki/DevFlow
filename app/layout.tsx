@@ -20,12 +20,19 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "DevFlow",
+  metadataBase: new URL("https://dev-overflow-coral.vercel.app/"),
+  title: {
+    default: "DevFlow",
+    template: "%s | DevFlow",
+  },
   description:
-    "DevFlow is a community-driven platform for developers to share their work and collaborate with others.",
+    "DevFlow is a community-driven platform for developers to share their work and collaborate with others. A place to share knowledge and better understand the world",
   icons: {
     icon: "/assets/images/site-logo.svg",
   },
+  keywords: "devflow, dev, flow, developer, programming, questions, answers",
+  applicationName: "DevFlow",
+  authors: { name: "Stefan Ylimäki", url: "https://github.com/StefanYlimaki" },
 };
 
 export default function RootLayout({
@@ -44,9 +51,7 @@ export default function RootLayout({
             },
           }}
         >
-          <ThemeProvider>
-            {children}
-          </ThemeProvider>
+          <ThemeProvider>{children}</ThemeProvider>
         </ClerkProvider>
       </body>
     </html>

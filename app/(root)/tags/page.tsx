@@ -5,12 +5,17 @@ import Pagination from "@/components/shared/Pagination";
 import LocalSearch from "@/components/shared/search/LocalSearch";
 import { TagFilters } from "@/constants/filters";
 import { getAllTags } from "@/lib/actions/tag.actions";
+import type { Metadata } from "next";
 
-const Tags = async ({
-  searchParams,
-}: {
-  searchParams: { q: string; f: string; p: string };
-}) => {
+type Props = {
+  searchParams: { f: string; p: string; q: string };
+};
+
+export const metadata: Metadata = {
+  title: "Tags",
+};
+
+const Tags = async ({ searchParams }: Props) => {
   const result = await getAllTags({
     searchQuery: searchParams.q,
     filter: searchParams.f,

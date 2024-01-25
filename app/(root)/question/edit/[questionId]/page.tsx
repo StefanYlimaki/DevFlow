@@ -4,7 +4,22 @@ import { getUserByClerkId } from "@/lib/actions/user.action";
 import { auth } from "@clerk/nextjs";
 import React from "react";
 
-const EditQuestion = async ({ params }: { params: { questionId: string } }) => {
+import type { Metadata } from "next";
+
+type Props = {
+  params: { questionId: string };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { questionId } = params;
+  const question = await getQuestionById({ questionId });
+
+  return {
+    title: `Muokkaa kysymystä – ${question.title}`,
+  };
+}
+
+const EditQuestion = async ({ params }: Props) => {
   const { userId: clerkId } = auth();
   const mongoUser = await getUserByClerkId({ clerkId });
   if (!mongoUser) return null;

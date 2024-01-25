@@ -11,14 +11,23 @@ import { auth } from "@clerk/nextjs";
 import { getUserByClerkId } from "@/lib/actions/user.action";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Votes from "@/components/shared/Votes";
+import type { Metadata } from "next";
 
-const Question = async ({
-  params,
-  searchParams,
-}: {
+type Props = {
   params: { questionId: string };
   searchParams: { f: string; p: string };
-}) => {
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { questionId } = params;
+  const question = await getQuestionById({ questionId });
+
+  return {
+    title: `Question: ${question.title}`,
+  };
+}
+
+const Question = async ({ params, searchParams }: Props) => {
   const { questionId } = params;
   const question = await getQuestionById({ questionId });
   const { userId: clerkId } = auth();

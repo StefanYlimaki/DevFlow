@@ -17,6 +17,7 @@ import { Button } from "../ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { Input } from "../ui/input";
 import { updateUser } from "@/lib/actions/user.action";
+import { toast } from "../ui/use-toast";
 
 const Profile = (params: { user: string }) => {
   const pathname = usePathname();
@@ -53,6 +54,10 @@ const Profile = (params: { user: string }) => {
       });
 
       router.back();
+
+      toast({
+        title: "Profile updated successfully",
+      });
     } catch (error) {
       console.error(error);
     } finally {

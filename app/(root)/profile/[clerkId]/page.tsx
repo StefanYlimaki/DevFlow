@@ -10,6 +10,20 @@ import ProfileLink from "@/components/profile/ProfileLink";
 import ProfileStats from "@/components/profile/ProfileStats";
 import AnswersTab from "@/components/profile/AnswersTab";
 import QuestionsTab from "@/components/profile/QuestionsTab";
+import type { Metadata } from "next";
+
+type Props = {
+  params: { clerkId: string };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { clerkId } = params;
+  const userInfo = await getUserInfo({ clerkId });
+
+  return {
+    title: userInfo?.user.username,
+  };
+}
 
 const Profile = async ({
   params,
@@ -69,13 +83,12 @@ const Profile = async ({
                 imgAlt="calendar-icon"
                 title={`Joined ${formatDate(userInfo?.user.joinedAt)}`}
               />
-
-              {userInfo?.user.bio && (
-                <p className="paragraph-regular text-dark400_light800 mt-8">
-                  {userInfo.user.bio}
-                </p>
-              )}
             </div>
+            {userInfo?.user.bio && (
+              <p className="paragraph-regular text-dark400_light800 mt-8">
+                {userInfo.user.bio}
+              </p>
+            )}
           </div>
         </div>
 

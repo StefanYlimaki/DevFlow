@@ -4,14 +4,26 @@ import Pagination from "@/components/shared/Pagination";
 import LocalSearch from "@/components/shared/search/LocalSearch";
 import { getQuestionsByTagId } from "@/lib/actions/tag.actions";
 import React from "react";
+import type { Metadata } from "next";
 
-const Tag = async ({
-  params,
-  searchParams,
-}: {
+type Props = {
   params: { tagId: string };
-  searchParams: { q: string; p: string };
-}) => {
+  searchParams: { f: string; p: string, q: string };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const result = await getQuestionsByTagId({
+    tagId: params.tagId,
+    page:  1,
+    pageSize: 0,
+  });
+
+  return {
+    title: result?.tagTitle,
+  };
+}
+
+const Tag = async ({ params, searchParams }: Props) => {
   const result = await getQuestionsByTagId({
     tagId: params.tagId,
     page: searchParams.p ? +searchParams.p : 1,
