@@ -27,9 +27,7 @@ export const metadata: Metadata = {
   },
   description:
     "DevFlow is a community-driven platform for developers to share their work and collaborate with others. A place to share knowledge and better understand the world",
-  icons: {
-    icon: "/assets/images/site-logo.svg",
-  },
+  icons: "/assets/iamges/site-logo.svg",
   keywords: "devflow, dev, flow, developer, programming, questions, answers",
   applicationName: "DevFlow",
   authors: { name: "Stefan Ylimäki", url: "https://github.com/StefanYlimaki" },
