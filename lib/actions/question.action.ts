@@ -51,6 +51,9 @@ export async function getQuestions(params: GetQuestionsParams) {
       case "unanswered":
         query.answers = { $size: 0 };
         break;
+      case "recommended":
+        sortOptions = { upvotes: -1, views: -1 };
+        break;
       default:
         break;
     }
@@ -200,6 +203,15 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
       question.downvotes.pull(user._id);
       userReputationChange = -POINTS_FOR_DOWNVOTING_QUESTION;
       authorReputationChange = -POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION;
+
+      const existingInteraction = await Interaction.findOne({
+        user: userId,
+        action: "downvote_question",
+        question: questionId,
+      });
+      if (existingInteraction) {
+        await Interaction.findByIdAndDelete(existingInteraction._id);
+      }
     } else if (hasUpvoted) {
       question.upvotes.pull(user._id);
       question.downvotes.push(user._id);
@@ -208,10 +220,31 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
       authorReputationChange =
         -POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION +
         POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION;
+
+      const existingInteraction = await Interaction.findOne({
+        user: userId,
+        action: "upvote_question",
+        question: questionId,
+      });
+      if (existingInteraction) {
+        await Interaction.findByIdAndDelete(existingInteraction._id);
+      }
+
+      await Interaction.create({
+        user: userId,
+        action: "downvote_question",
+        question: questionId,
+      });
     } else {
       question.downvotes.push(user._id);
       userReputationChange = POINTS_FOR_DOWNVOTING_QUESTION;
       authorReputationChange = POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION;
+
+      await Interaction.create({
+        user: userId,
+        action: "downvote_question",
+        question: questionId,
+      });
     }
 
     await User.findByIdAndUpdate(user._id, {
@@ -245,6 +278,15 @@ export async function upvoteQuestion(params: QuestionVoteParams) {
       question.upvotes.pull(user._id);
       userReputationChange = -POINTS_FOR_UPVOTING_QUESTION;
       authorReputationChange = -POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION;
+
+      const existingInteraction = await Interaction.findOne({
+        user: userId,
+        action: "upvote_question",
+        question: questionId,
+      });
+      if (existingInteraction) {
+        await Interaction.findByIdAndDelete(existingInteraction._id);
+      }
     } else if (hasDownvoted) {
       question.downvotes.pull(user._id);
       question.upvotes.push(user._id);
@@ -253,10 +295,31 @@ export async function upvoteQuestion(params: QuestionVoteParams) {
       authorReputationChange =
         -POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION +
         POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION;
+
+      const existingInteraction = await Interaction.findOne({
+        user: userId,
+        action: "downvote_question",
+        question: questionId,
+      });
+      if (existingInteraction) {
+        await Interaction.findByIdAndDelete(existingInteraction._id);
+      }
+
+      await Interaction.create({
+        user: userId,
+        action: "upvote_question",
+        question: questionId,
+      });
     } else {
       question.upvotes.push(user._id);
       userReputationChange = POINTS_FOR_UPVOTING_QUESTION;
       authorReputationChange = POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION;
+
+      await Interaction.create({
+        user: userId,
+        action: "upvote_question",
+        question: questionId,
+      });
     }
 
     await User.findByIdAndUpdate(user._id, {
