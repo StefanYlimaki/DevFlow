@@ -27,7 +27,7 @@ export async function getQuestions(params: GetQuestionsParams) {
   try {
     connectToDatabase();
 
-    const { searchQuery, filter, page = 1, pageSize = 10 } = params;
+    const { searchQuery, filter, page = 1, pageSize = 10, clerkId } = params;
 
     const query: FilterQuery<typeof Question> = {};
 
@@ -41,6 +41,32 @@ export async function getQuestions(params: GetQuestionsParams) {
 
     let sortOptions = {};
 
+    let recommendedQuestions;
+
+    if (clerkId) {
+      const user = await User.findOne({ clerkId });
+
+      const topTagsOfInteractions = await Interaction.aggregate([
+        { $match: { user: user._id } },
+        { $unwind: "$tags" },
+        {
+          $group: {
+            _id: "$tags",
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1 } },
+        { $limit: 2 },
+      ]);
+
+      recommendedQuestions = await Question.find({
+        tags: { $in: topTagsOfInteractions.map((tag) => tag._id) },
+      })
+        .populate({ path: "tags", model: Tag })
+        .populate({ path: "author", model: User })
+        .sort({ views: -1, upvotes: -1});
+    }
+
     switch (filter) {
       case "newest":
         sortOptions = { createdAt: -1 };
@@ -52,8 +78,10 @@ export async function getQuestions(params: GetQuestionsParams) {
         query.answers = { $size: 0 };
         break;
       case "recommended":
-        sortOptions = { upvotes: -1, views: -1 };
-        break;
+        if (!clerkId) {
+          return { questions: [], hasNext: false, errorType: 1 };
+        }
+        return { questions: recommendedQuestions, hasNext: false };
       default:
         break;
     }
@@ -190,11 +218,15 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
   try {
     const { questionId, userId, hasUpvoted, hasDownvoted, path } = params;
 
+    console.log(params);
+
     connectToDatabase();
 
     const user = await User.findById(JSON.parse(userId));
 
     const question = await Question.findById(JSON.parse(questionId));
+
+    console.log(question);
 
     let userReputationChange = 0;
     let authorReputationChange = 0;
@@ -205,10 +237,11 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
       authorReputationChange = -POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION;
 
       const existingInteraction = await Interaction.findOne({
-        user: userId,
+        user: user._id,
         action: "downvote_question",
-        question: questionId,
+        question: question._id,
       });
+
       if (existingInteraction) {
         await Interaction.findByIdAndDelete(existingInteraction._id);
       }
@@ -222,18 +255,19 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
         POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION;
 
       const existingInteraction = await Interaction.findOne({
-        user: userId,
+        user: user._id,
         action: "upvote_question",
-        question: questionId,
+        question: question._id,
       });
       if (existingInteraction) {
         await Interaction.findByIdAndDelete(existingInteraction._id);
       }
 
       await Interaction.create({
-        user: userId,
+        user: user._id,
         action: "downvote_question",
-        question: questionId,
+        question: question._id,
+        tags: question.tags,
       });
     } else {
       question.downvotes.push(user._id);
@@ -241,9 +275,10 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
       authorReputationChange = POINTS_FOR_RECEIVING_DOWNVOTE_ON_QUESTION;
 
       await Interaction.create({
-        user: userId,
+        user: user._id,
         action: "downvote_question",
-        question: questionId,
+        question: question._id,
+        tags: question.tags,
       });
     }
 
@@ -280,9 +315,9 @@ export async function upvoteQuestion(params: QuestionVoteParams) {
       authorReputationChange = -POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION;
 
       const existingInteraction = await Interaction.findOne({
-        user: userId,
+        user: user._id,
         action: "upvote_question",
-        question: questionId,
+        question: question._id,
       });
       if (existingInteraction) {
         await Interaction.findByIdAndDelete(existingInteraction._id);
@@ -297,18 +332,19 @@ export async function upvoteQuestion(params: QuestionVoteParams) {
         POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION;
 
       const existingInteraction = await Interaction.findOne({
-        user: userId,
+        user: user._id,
         action: "downvote_question",
-        question: questionId,
+        question: question._id,
       });
       if (existingInteraction) {
         await Interaction.findByIdAndDelete(existingInteraction._id);
       }
 
       await Interaction.create({
-        user: userId,
+        user: user._id,
         action: "upvote_question",
-        question: questionId,
+        question: question._id,
+        tags: question.tags,
       });
     } else {
       question.upvotes.push(user._id);
@@ -316,9 +352,10 @@ export async function upvoteQuestion(params: QuestionVoteParams) {
       authorReputationChange = POINTS_FOR_RECEIVING_UPVOTE_ON_QUESTION;
 
       await Interaction.create({
-        user: userId,
+        user: user._id,
         action: "upvote_question",
-        question: questionId,
+        question: question._id,
+        tags: question.tags,
       });
     }
 

@@ -23,10 +23,13 @@ export async function ViewQuestion(params: ViewQuestionParams) {
         return;
       }
 
+      const question = await Question.findById(questionId);
+
       await Interaction.create({
         user: userId,
         action: "view",
         question: questionId,
+        tags: question.tags,
       });
 
       // Update ViewCount of the question

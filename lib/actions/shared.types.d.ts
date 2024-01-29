@@ -56,6 +56,7 @@ export interface GetQuestionsParams {
   pageSize?: number;
   searchQuery?: string;
   filter?: string;
+  clerkId?: string;
 }
 
 export interface GetTopQuestionsParams {

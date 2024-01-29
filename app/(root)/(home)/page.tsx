@@ -11,6 +11,7 @@ import Link from "next/link";
 import React from "react";
 
 import type { Metadata } from "next";
+import { auth } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -21,11 +22,13 @@ const Home = async ({
 }: {
   searchParams: { q: string; f: string; p: string };
 }) => {
+  const { userId: clerkId } = auth();
   const result = await getQuestions({
     searchQuery: searchParams.q,
     filter: searchParams.f,
     page: searchParams.p ? +searchParams.p : 1,
     pageSize: 10,
+    clerkId: clerkId || "",
   });
 
   return (
@@ -74,16 +77,25 @@ const Home = async ({
             />
           ))
         ) : (
-          <div>
-            <NoResult
-              title="There are no questions to show"
-              description="Be the first to break the silence! 🚀 Ask a Question and kickstart the
+          <>
+            {result.errorType === 1 ? (
+              <NoResult
+                title="You need to be logged in to see the recommended questions"
+                description="Log in to see the recommended questions. 🚀"
+                link="/login"
+                linkTitle="Log in"
+              />
+            ) : (
+              <NoResult
+                title="There are no questions to show"
+                description="Be the first to break the silence! 🚀 Ask a Question and kickstart the
         discussion. our query could be the next big thing others learn from. Get
         involved! 💡"
-              link="/ask-question"
-              linkTitle="Ask a Question"
-            />
-          </div>
+                link="/ask-question"
+                linkTitle="Ask a Question"
+              />
+            )}
+          </>
         )}
       </div>
 
