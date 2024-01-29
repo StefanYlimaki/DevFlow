@@ -22,6 +22,7 @@ import console from "console";
 import { FilterQuery } from "mongoose";
 import { BadgeCounts, BadgeCriteriaType } from "@/types";
 import { assignBadges } from "../utils";
+import Interaction from "@/database/interaction.modal";
 
 export async function getUserByClerkId(params: any) {
   try {
@@ -160,8 +161,19 @@ export async function toggleSaveQuestion(params: ToggleSaveQuestionParams) {
 
     if (user.saved.includes(question._id)) {
       user.saved.pull(question._id);
+      await Interaction.findOneAndDelete({
+        user: user._id,
+        action: "save_question",
+        question: question._id,
+      });
     } else {
       user.saved.push(question._id);
+      await Interaction.create({
+        user: user._id,
+        action: "save_question",
+        question: question._id,
+        tags: question.tags,
+      });
     }
 
     await user.save();

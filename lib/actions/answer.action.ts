@@ -17,6 +17,7 @@ import {
   POINTS_FOR_RECEIVING_UPVOTE_ON_ANSWER,
   POINTS_FOR_UPVOTING_ANSWER,
 } from "@/constants/points";
+import Interaction from "@/database/interaction.modal";
 
 /* GET */
 export async function getAnswersByQuestionId(params: GetAnswersParams) {
@@ -83,6 +84,14 @@ export async function createAnswer(params: CreateAnswerParams) {
       $inc: { reputation: POINTS_FOR_CREATING_ANSWER },
     });
 
+    const questionContent = await Question.findById(question);
+    await Interaction.create({
+      user: author,
+      action: "leave_answer",
+      question: questionContent._id,
+      tags: questionContent.tags,
+    });
+
     revalidatePath(path);
   } catch (error) {
     console.error(error);
@@ -97,6 +106,7 @@ export async function upvoteAnswer(params: AnswerVoteParams) {
 
     const user = await User.findById(JSON.parse(userId));
     const answer = await Answer.findById(JSON.parse(answerId));
+    const question = await Question.findById(answer.question);
 
     let userReputationChange = 0;
     let authorReputationChange = 0;
@@ -105,6 +115,16 @@ export async function upvoteAnswer(params: AnswerVoteParams) {
       answer.upvotes.pull(user._id);
       userReputationChange = -POINTS_FOR_UPVOTING_ANSWER;
       authorReputationChange = -POINTS_FOR_RECEIVING_UPVOTE_ON_ANSWER;
+
+      const existingInteraction = await Interaction.findOne({
+        user: user._id,
+        action: "upvote_answer",
+        answer: answer._id,
+      });
+
+      if (existingInteraction) {
+        await Interaction.findByIdAndDelete(existingInteraction._id);
+      }
     } else if (hasDownvoted) {
       answer.downvotes.pull(user._id);
       answer.upvotes.push(user._id);
@@ -113,10 +133,35 @@ export async function upvoteAnswer(params: AnswerVoteParams) {
       authorReputationChange =
         -POINTS_FOR_RECEIVING_DOWNVOTE_ON_ANSWER +
         POINTS_FOR_RECEIVING_UPVOTE_ON_ANSWER;
+
+      const existingInteraction = await Interaction.findOne({
+        user: user._id,
+        action: "downvote_answer",
+        answer: answer._id,
+      });
+      if (existingInteraction) {
+        await Interaction.findByIdAndDelete(existingInteraction._id);
+      }
+
+      await Interaction.create({
+        user: user._id,
+        action: "upvote_answer",
+        answer: answer._id,
+        question: question._id,
+        tags: question.tags,
+      });
     } else {
       answer.upvotes.push(user._id);
       userReputationChange = POINTS_FOR_UPVOTING_ANSWER;
       authorReputationChange = POINTS_FOR_RECEIVING_UPVOTE_ON_ANSWER;
+
+      await Interaction.create({
+        user: user._id,
+        action: "upvote_answer",
+        answer: answer._id,
+        question: question._id,
+        tags: question.tags,
+      });
     }
 
     await User.findByIdAndUpdate(user._id, {

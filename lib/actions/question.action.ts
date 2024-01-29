@@ -81,7 +81,7 @@ export async function getQuestions(params: GetQuestionsParams) {
         if (!clerkId) {
           return { questions: [], hasNext: false, errorType: 1 };
         }
-        return { questions: recommendedQuestions, hasNext: false };
+        return { questions: recommendedQuestions || [], hasNext: false };
       default:
         break;
     }
@@ -218,15 +218,11 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
   try {
     const { questionId, userId, hasUpvoted, hasDownvoted, path } = params;
 
-    console.log(params);
-
     connectToDatabase();
 
     const user = await User.findById(JSON.parse(userId));
 
     const question = await Question.findById(JSON.parse(questionId));
-
-    console.log(question);
 
     let userReputationChange = 0;
     let authorReputationChange = 0;

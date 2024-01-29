@@ -34,8 +34,6 @@ export async function globalSearch(params: SearchParams) {
           .find({ [searchField]: searchQuery })
           .limit(2);
 
-        console.log("queryResults", queryResults);
-
         results.push(
           ...queryResults.map((r) => ({
             title:

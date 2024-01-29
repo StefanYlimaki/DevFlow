@@ -19,6 +19,7 @@ import Image from "next/image";
 import { createAnswer } from "@/lib/actions/answer.action";
 import { usePathname } from "next/navigation";
 import { toast } from "../ui/use-toast";
+import { useAuth } from "@clerk/nextjs";
 
 interface Props {
   question: string;
@@ -32,6 +33,7 @@ const Answer = ({ question, questionId, authorId }: Props) => {
   const [isAISubmitting, setIsAISubmitting] = useState(false);
   const { mode } = useTheme();
   const editorRef = useRef(null);
+  const { userId: clerkId } = useAuth();
 
   const form = useForm<z.infer<typeof AnswerSchema>>({
     resolver: zodResolver(AnswerSchema),
@@ -44,11 +46,18 @@ const Answer = ({ question, questionId, authorId }: Props) => {
     setIsSubmitting(true);
 
     try {
+      if (!clerkId) {
+        toast({
+          title: "You need to login first",
+        });
+        return;
+      }
       await createAnswer({
         content: values.answer,
         author: JSON.parse(authorId),
         question: JSON.parse(questionId),
         path: pathname,
+        clerkId,
       });
 
       form.reset();
@@ -70,7 +79,6 @@ const Answer = ({ question, questionId, authorId }: Props) => {
 
   const generateAIAnswer = async () => {
     if (!authorId) return;
-    console.log(isAISubmitting);
     try {
       setIsAISubmitting(true);
       const response = await fetch(
@@ -108,7 +116,7 @@ const Answer = ({ question, questionId, authorId }: Props) => {
         <Button
           className="btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none"
           onClick={generateAIAnswer}
-          style={{ display: "none"}}
+          style={{ display: "none" }}
         >
           {isAISubmitting ? (
             "Generating..."
