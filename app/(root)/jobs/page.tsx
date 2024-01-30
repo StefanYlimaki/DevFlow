@@ -4,6 +4,8 @@ import React from "react";
 import type { Metadata } from "next";
 import LocationFilter from "@/components/LocationFilter";
 import { getJobs } from "@/lib/actions/jobs.action";
+import NoResult from "@/components/shared/NoResult";
+import JobCard from "@/components/cards/JobCard";
 
 export const metadata: Metadata = {
   title: "Collections",
@@ -43,33 +45,36 @@ const Home = async ({
         <LocationFilter otherClasses="min-h-[56px] sm:min-w-[170px]" />
       </div>
 
-      {/* <div className="mt-10 flex w-full flex-col gap-6">
-        {result.questions.length > 0 ? (
-          result.questions.map((question: any) => (
-            <QuestionCard
-              key={question._id}
-              _id={question._id}
-              title={question.title}
-              tags={question.tags}
-              author={question.author}
-              upvotes={question.upvotes}
-              views={question.views}
-              answers={question.answers}
-              createdAt={question.createdAt}
+      <div className="mt-10 flex w-full flex-col gap-6">
+        {result.jobs.length > 0 ? (
+          result.jobs.map((job: any) => (
+            <JobCard
+              key={job._id}
+              employerName={job.employer_name}
+              employerLogo={job.employer_logo}
+              jobTitle={job.job_title}
+              jobDescription={job.job_description}
+              jobCity={job.job_city}
+              jobState={job.job_state}
+              jobCountry={job.job_country}
+              jobLink={job.job_link}
+              jobType={job.job_employment_type}
+              jobMinPay={job.job_min_salary}
+              jobMaxPay={job.job_max_salary}
             />
           ))
         ) : (
           <div>
             <NoResult
-              title="No Saved Questions Found"
-              description="It appears that there are no saved questions in your collection at the moment 😔.Start exploring and saving questions that pique your interest 🌟"
+              title="No Jobs Found"
+              description="It appears that there are no jobs that match your criteria at this time."
               link="/"
-              linkTitle="Explore Questions"
+              linkTitle="Go to Home"
             />
           </div>
         )}
       </div>
-
+{/* 
       <div className="mt-10">
         <Pagination
           pageNumber={searchParams?.p ? +searchParams.p : 1}
