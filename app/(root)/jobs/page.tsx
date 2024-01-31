@@ -48,22 +48,23 @@ const Home = async ({
       <div className="light-border mb-9 mt-11 flex flex-col gap-9 border-b pb-9">
         {result.jobs.length > 0 ? (
           result.jobs.map((job: any) => (
-            <JobCard
-              key={job._id}
-              employerName={job.employer_name}
-              employerLogo={job.employer_logo}
-              jobTitle={job.job_title}
-              jobDescription={job.job_description}
-              jobCity={job.job_city}
-              jobState={job.job_state}
-              jobCountry={job.job_country}
-              jobLink={job.job_link}
-              jobType={job.job_employment_type}
-              jobMinPay={job.job_min_salary}
-              jobMaxPay={job.job_max_salary}
-              jobSalaryCurrency={job.job_salary_currency}
-              jobSalaryPeriod={job.job_salary_period}
-            />
+            <React.Fragment key={job._id}>
+              <JobCard
+                employerName={job.employer_name}
+                employerLogo={job.employer_logo}
+                jobTitle={job.job_title}
+                jobDescription={job.job_description}
+                jobCity={job.job_city}
+                jobState={job.job_state}
+                jobCountry={job.job_country}
+                jobLink={job.job_apply_link}
+                jobType={job.job_employment_type}
+                jobMinPay={job.job_min_salary}
+                jobMaxPay={job.job_max_salary}
+                jobSalaryCurrency={job.job_salary_currency}
+                jobSalaryPeriod={job.job_salary_period}
+              />
+            </React.Fragment>
           ))
         ) : (
           <div>
@@ -76,7 +77,7 @@ const Home = async ({
           </div>
         )}
       </div>
-{/* 
+      {/* 
       <div className="mt-10">
         <Pagination
           pageNumber={searchParams?.p ? +searchParams.p : 1}
