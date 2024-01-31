@@ -51,8 +51,8 @@ const Jobs = async ({
       <JobsFilters />
 
       <div className="light-border mb-9 mt-11 flex flex-col gap-9 border-b pb-9">
-        {result.jobs?.length > 0 ? (
-          result.jobs?.map((job: any) => (
+        {result.jobs.length > 0 ? (
+          result.jobs.map((job: any) => (
             <React.Fragment key={job._id}>
               <JobCard
                 employerName={job.employer_name}
@@ -72,14 +72,27 @@ const Jobs = async ({
             </React.Fragment>
           ))
         ) : (
-          <div>
-            <NoResult
-              title="No Jobs Found"
-              description="It appears that there are no jobs that match your criteria at this time."
-              link="/"
-              linkTitle="Go to Home"
-            />
-          </div>
+          <>
+            {result.quotaEnded ? (
+              <div>
+                <NoResult
+                  title="Monthly Limit on API-Requests Reached"
+                  description="It appears that we have reached our monthly limit on requests. Please try again next month."
+                  link="/"
+                  linkTitle="Go to Home"
+                />
+              </div>
+            ) : (
+              <div>
+                <NoResult
+                  title="No Jobs Found"
+                  description="It appears that there are no jobs that match your criteria at this time."
+                  link="/"
+                  linkTitle="Go to Home"
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
 

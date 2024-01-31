@@ -49,12 +49,20 @@ export async function getJobs(params: any) {
     };
 
     const response = await fetch(url, options);
+
+    if(response.status === 429) return {
+      jobs: [],
+      hasNext: false,
+      quotaEnded: true
+    }
+
     const result = await response.text();
     const parsedResult = JSON.parse(result);
 
     return {
       jobs: parsedResult.data,
-      hasNext: parsedResult?.data?.length === 10,
+      hasNext: parsedResult.data.length === 10 || false,
+      quotaEnded: false
     };
   } catch (error) {
     console.error(error);
