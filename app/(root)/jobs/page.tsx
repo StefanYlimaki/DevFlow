@@ -2,19 +2,21 @@ import LocalSearch from "@/components/shared/search/LocalSearch";
 import { auth } from "@clerk/nextjs";
 import React from "react";
 import type { Metadata } from "next";
-import LocationFilter from "@/components/LocationFilter";
+import LocationFilter from "@/components/jobs/LocationFilter";
 import { getJobs } from "@/lib/actions/jobs.action";
 import NoResult from "@/components/shared/NoResult";
 import JobCard from "@/components/cards/JobCard";
+import Pagination from "@/components/shared/Pagination";
+import JobsFilters from "@/components/jobs/JobsFilters";
 
 export const metadata: Metadata = {
-  title: "Collections",
+  title: "Jobs",
 };
 
-const Home = async ({
+const Jobs = async ({
   searchParams,
 }: {
-  searchParams: { location: string; p: string };
+  searchParams: { location: string; p: string; f: string };
 }) => {
   const { userId: clerkId } = auth();
 
@@ -22,6 +24,7 @@ const Home = async ({
 
   const result = await getJobs({
     page: searchParams.p ? +searchParams.p : 1,
+    filter: searchParams.f,
     country: searchParams.location,
   });
 
@@ -44,6 +47,8 @@ const Home = async ({
 
         <LocationFilter otherClasses="min-h-[56px] sm:min-w-[170px]" />
       </div>
+
+      <JobsFilters />
 
       <div className="light-border mb-9 mt-11 flex flex-col gap-9 border-b pb-9">
         {result.jobs.length > 0 ? (
@@ -77,15 +82,15 @@ const Home = async ({
           </div>
         )}
       </div>
-      {/* 
+
       <div className="mt-10">
         <Pagination
           pageNumber={searchParams?.p ? +searchParams.p : 1}
           hasNext={result.hasNext}
         />
-      </div> */}
+      </div>
     </>
   );
 };
 
-export default Home;
+export default Jobs;

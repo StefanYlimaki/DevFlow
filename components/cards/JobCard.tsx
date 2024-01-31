@@ -1,9 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import JobDescription from "../JobDescription";
+import JobDescription from "../jobs/JobDescription";
 
 const JobCard = ({
-  employerName,
   employerLogo,
   jobTitle,
   jobDescription,

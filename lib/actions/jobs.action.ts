@@ -2,7 +2,7 @@
 
 export async function getJobs(params: any) {
   try {
-    const { page = 1, country } = params;
+    const { page = 1, country, filter } = params;
 
     const baseUrl = process.env.JOB_SEARCH_BASE_URL;
 
@@ -20,6 +20,26 @@ export async function getJobs(params: any) {
     if (!process.env.JOB_SEARCH_RAPID_API_HOST)
       throw new Error("Missing JOB_SEARCH_RAPID_API_HOST env variable");
 
+    switch (filter) {
+      case "remote_only":
+        url.searchParams.append("remote_jobs_only", "true");
+        break;
+      case "fulltime":
+        url.searchParams.append("employment_types", "FULLTIME");
+        break;
+      case "intern":
+        url.searchParams.append("employment_types", "INTERN");
+        break;
+      case "no_degree_required":
+        url.searchParams.append("job_requirements", "no_degree");
+        break;
+      case "no_experience_required":
+        url.searchParams.append("job_requirements", "no_experience");
+        break;
+      default:
+        break;
+    }
+    
     const options = {
       method: "GET",
       headers: {
@@ -30,8 +50,12 @@ export async function getJobs(params: any) {
 
     const response = await fetch(url, options);
     const result = await response.text();
+    const parsedResult = JSON.parse(result);
 
-    return { jobs: JSON.parse(result).data, hasNext: false };
+    return {
+      jobs: parsedResult.data,
+      hasNext: parsedResult.data.length === 10,
+    };
   } catch (error) {
     console.error(error);
   }

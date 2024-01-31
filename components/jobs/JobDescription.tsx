@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 
 const JobDescription = ({ jobDescription }: { jobDescription: string }) => {
   const [isClampedDown, setIsClampedDown] = useState(true);

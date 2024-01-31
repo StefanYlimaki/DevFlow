@@ -33,6 +33,14 @@ export const HomePageFilters = [
   { name: "Unanswered", value: "unanswered" },
 ];
 
+export const JobsPageFilters = [
+  { name: "Remote", value: "remote_only" },
+  { name: "Fulltime", value: "fulltime" },
+  { name: "Intern", value: "intern" },
+  { name: "No Degree Required", value: "no_degree_required" },
+  { name: "No Experience Required", value: "no_experience_required" },
+];
+
 export const GlobalSearchFilters = [
   { name: "Question", value: "question" },
   { name: "Answer", value: "answer" },
