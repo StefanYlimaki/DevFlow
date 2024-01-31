@@ -54,7 +54,11 @@ export async function getJobs(params: any) {
 
     return {
       jobs: parsedResult.data,
+<<<<<<< HEAD
       hasNext: parsedResult?.data?.length === 10,
+=======
+      hasNext: parsedResult.data.length === 10,
+>>>>>>> 949d7d96d9eea53acb9b425f5399632bdac9e75b
     };
   } catch (error) {
     console.error(error);

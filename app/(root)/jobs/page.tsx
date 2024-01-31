@@ -51,8 +51,13 @@ const Jobs = async ({
       <JobsFilters />
 
       <div className="light-border mb-9 mt-11 flex flex-col gap-9 border-b pb-9">
+<<<<<<< HEAD
         {result.jobs?.length > 0 ? (
           result.jobs?.map((job: any) => (
+=======
+        {result.jobs.length > 0 ? (
+          result.jobs.map((job: any) => (
+>>>>>>> 949d7d96d9eea53acb9b425f5399632bdac9e75b
             <React.Fragment key={job._id}>
               <JobCard
                 employerName={job.employer_name}
